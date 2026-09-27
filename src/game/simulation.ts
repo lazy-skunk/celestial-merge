@@ -1,0 +1,211 @@
+import { BOARD_HEIGHT, BOARD_WIDTH } from "./board";
+import { celestialBodyRadius } from "./celestialBodies";
+import type { CelestialBody } from "./gameRules";
+import { canMergeCelestialBodies, mergeCelestialBodies } from "./gameRules";
+
+const GRAVITY = 500;
+const BOUNCE_DAMPING = 0.1;
+const FLOOR_FRICTION = 0.02;
+const BODY_SURFACE_FRICTION = 0.01;
+const COLLISION_SOLVER_ITERATIONS = 3;
+
+type SimulationUpdateResult = {
+  bodies: CelestialBody[];
+  nextId: number;
+  scoreGained: number;
+};
+
+type MergeState = {
+  mergedBodyIds: Set<number>;
+  createdBodies: CelestialBody[];
+  nextId: number;
+  scoreGained: number;
+};
+
+type BodyPairGeometry = {
+  dx: number;
+  dy: number;
+  distance: number;
+  minimumDistance: number;
+  positionsAreIdentical: boolean;
+};
+
+type CollisionNormal = {
+  nx: number;
+  ny: number;
+};
+
+export function updateSimulation(
+  bodies: CelestialBody[],
+  nextId: number,
+  dt: number,
+): SimulationUpdateResult {
+  const updatedBodies = bodies.map((body) => ({ ...body }));
+  moveBodies(updatedBodies, dt);
+
+  return resolveCollisions(updatedBodies, nextId);
+}
+
+// Merge only on the first pass and exclude consumed bodies from later passes.
+// New bodies join on the next update, so a body cannot merge repeatedly in one update.
+// Later passes separate different levels; matching levels stay in contact for the next merge.
+function resolveCollisions(bodies: CelestialBody[], nextId: number): SimulationUpdateResult {
+  const merges: MergeState = {
+    mergedBodyIds: new Set<number>(),
+    createdBodies: [],
+    nextId,
+    scoreGained: 0,
+  };
+
+  for (let iteration = 0; iteration < COLLISION_SOLVER_ITERATIONS; iteration++) {
+    resolveBodyPairs(bodies, merges, iteration === 0);
+    for (const body of bodies) {
+      if (!merges.mergedBodyIds.has(body.id)) constrainToBoard(body);
+    }
+  }
+
+  const resolvedBodies = merges.mergedBodyIds.size
+    ? bodies.filter((body) => !merges.mergedBodyIds.has(body.id)).concat(merges.createdBodies)
+    : bodies;
+
+  for (const body of merges.createdBodies) constrainToBoard(body);
+
+  return {
+    bodies: resolvedBodies,
+    nextId: merges.nextId,
+    scoreGained: merges.scoreGained,
+  };
+}
+
+function resolveBodyPairs(bodies: CelestialBody[], merges: MergeState, allowMerging: boolean) {
+  for (let i = 0; i < bodies.length; i++) {
+    for (let j = i + 1; j < bodies.length; j++) {
+      const firstBody = bodies[i];
+      const secondBody = bodies[j];
+      if (merges.mergedBodyIds.has(firstBody.id) || merges.mergedBodyIds.has(secondBody.id)) {
+        continue;
+      }
+
+      const geometry = measureBodyPair(firstBody, secondBody);
+      if (geometry.distance >= geometry.minimumDistance) continue;
+
+      if (!canMergeCelestialBodies(firstBody, secondBody)) {
+        separateBodies(firstBody, secondBody, geometry);
+        continue;
+      }
+      if (!allowMerging) continue;
+
+      const mergeResult = mergeCelestialBodies(merges.nextId, firstBody, secondBody);
+      if (!mergeResult) continue;
+
+      merges.mergedBodyIds.add(firstBody.id);
+      merges.mergedBodyIds.add(secondBody.id);
+      if (mergeResult.body) {
+        merges.createdBodies.push(mergeResult.body);
+        merges.nextId++;
+      }
+      merges.scoreGained += mergeResult.scoreGained;
+    }
+  }
+}
+
+function measureBodyPair(firstBody: CelestialBody, secondBody: CelestialBody): BodyPairGeometry {
+  const dx = secondBody.x - firstBody.x;
+  const dy = secondBody.y - firstBody.y;
+  const distance = Math.hypot(dx, dy);
+  return {
+    dx,
+    dy,
+    distance,
+    minimumDistance: celestialBodyRadius(firstBody.level) + celestialBodyRadius(secondBody.level),
+    positionsAreIdentical: distance === 0,
+  };
+}
+
+function moveBodies(bodies: CelestialBody[], dt: number) {
+  for (const body of bodies) {
+    body.vy += GRAVITY * dt;
+    body.x += body.vx * dt;
+    body.y += body.vy * dt;
+    constrainToBoard(body);
+  }
+}
+
+function constrainToBoard(body: CelestialBody) {
+  const radius = celestialBodyRadius(body.level);
+  if (body.x < radius) {
+    body.x = radius;
+    if (body.vx < 0) body.vx *= -BOUNCE_DAMPING;
+  } else if (body.x > BOARD_WIDTH - radius) {
+    body.x = BOARD_WIDTH - radius;
+    if (body.vx > 0) body.vx *= -BOUNCE_DAMPING;
+  }
+  if (body.y > BOARD_HEIGHT - radius) {
+    body.y = BOARD_HEIGHT - radius;
+    if (body.vy > 0) {
+      body.vy *= -BOUNCE_DAMPING;
+      body.vx *= 1 - FLOOR_FRICTION;
+    }
+  }
+}
+
+function separateBodies(
+  firstBody: CelestialBody,
+  secondBody: CelestialBody,
+  geometry: BodyPairGeometry,
+) {
+  const normal = collisionNormal(geometry);
+  separatePositions(firstBody, secondBody, geometry, normal);
+  applyBounce(firstBody, secondBody, normal);
+  applySurfaceFriction(firstBody, secondBody, normal);
+}
+
+function collisionNormal({ dx, dy, distance, positionsAreIdentical }: BodyPairGeometry) {
+  return {
+    nx: positionsAreIdentical ? 1 : dx / distance,
+    ny: positionsAreIdentical ? 0 : dy / distance,
+  };
+}
+
+function separatePositions(
+  firstBody: CelestialBody,
+  secondBody: CelestialBody,
+  { distance, minimumDistance }: BodyPairGeometry,
+  { nx, ny }: CollisionNormal,
+) {
+  const overlap = minimumDistance - distance;
+  firstBody.x -= (nx * overlap) / 2;
+  firstBody.y -= (ny * overlap) / 2;
+  secondBody.x += (nx * overlap) / 2;
+  secondBody.y += (ny * overlap) / 2;
+}
+
+function applyBounce(
+  firstBody: CelestialBody,
+  secondBody: CelestialBody,
+  { nx, ny }: CollisionNormal,
+) {
+  const relativeSpeed = (secondBody.vx - firstBody.vx) * nx + (secondBody.vy - firstBody.vy) * ny;
+  if (relativeSpeed >= 0) return;
+
+  const impulse = (-(1 + BOUNCE_DAMPING) * relativeSpeed) / 2;
+  firstBody.vx -= impulse * nx;
+  firstBody.vy -= impulse * ny;
+  secondBody.vx += impulse * nx;
+  secondBody.vy += impulse * ny;
+}
+
+function applySurfaceFriction(
+  firstBody: CelestialBody,
+  secondBody: CelestialBody,
+  { nx, ny }: CollisionNormal,
+) {
+  const tx = -ny;
+  const ty = nx;
+  const tangentSpeed = (secondBody.vx - firstBody.vx) * tx + (secondBody.vy - firstBody.vy) * ty;
+  const friction = (-tangentSpeed * BODY_SURFACE_FRICTION) / 2;
+  firstBody.vx -= friction * tx;
+  firstBody.vy -= friction * ty;
+  secondBody.vx += friction * tx;
+  secondBody.vy += friction * ty;
+}
