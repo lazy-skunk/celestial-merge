@@ -1,0 +1,7 @@
+{
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.oxc": "never",
+    "source.organizeImports": "explicit"
+  }
+}
