@@ -1,11 +1,11 @@
-## 関連Issue
+## Related Issue
 
-<!-- 関連するIssueを記載してください。例：Closes #123 -->
+<!-- A reference to a related issue in your repository. -->
 
-## 変更内容
+## Description
 
-<!-- このプルリクエストで変更した内容を記載してください。 -->
+<!-- A description of the changes proposed in the pull request. -->
 
-## 確認方法
+## Reviewers
 
-<!-- 変更内容を確認する手順を記載してください。 -->
+<!-- @mentions of the person or team responsible for reviewing proposed changes. -->

@@ -1,23 +1,19 @@
 ---
-name: 機能提案
-about: 新しい機能や改善案の提案はこちらから
+name: Feature request
+about: Suggest an idea for this project
 title: ""
 labels: ""
 assignees: ""
 ---
 
-## 解決したい課題
+**Is your feature request related to a problem? Please describe.**
+A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
-どのような課題を解決したいかを記載してください。
+**Describe the solution you'd like**
+A clear and concise description of what you want to happen.
 
-## 提案する機能
+**Describe alternatives you've considered**
+A clear and concise description of any alternative solutions or features you've considered.
 
-実現したい内容を簡潔に記載してください。
-
-## 検討した代替案
-
-ほかに検討した方法があれば記載してください。
-
-## 補足
-
-そのほかに参考となる情報やスクリーンショットがあれば記載してください。
+**Additional context**
+Add any other context or screenshots about the feature request here.
