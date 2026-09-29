@@ -1,4 +1,3 @@
-import colors from "tailwindcss/colors";
 import { BOARD_WIDTH } from "./board";
 
 const FIRST_BODY_RADIUS = BOARD_WIDTH / 30;
@@ -16,63 +15,83 @@ export const CelestialLevel = {
   Neptune: 8,
   Pluto: 9,
   Sun: 10,
-  Galaxy: 11,
+  BlackHole: 11,
 } as const;
 
 export type CelestialLevel = (typeof CelestialLevel)[keyof typeof CelestialLevel];
 
 export const CELESTIAL_PROGRESSION = Object.values(CelestialLevel);
 
-type CelestialBodyDefinition = { name: string; color: string };
+// Coordinates in the original PNG, including transparent padding.
+// Measure the spherical surface only; exclude rings and glow.
+export type ImageBodyCircle = Readonly<{ cx: number; cy: number; radius: number }>;
+
+type CelestialBodyDefinition = {
+  name: string;
+  image: string;
+  imageBody: ImageBodyCircle;
+};
 
 export const CELESTIAL_BODIES: Record<CelestialLevel, CelestialBodyDefinition> = {
   [CelestialLevel.Moon]: {
+    image: import.meta.env.BASE_URL + "space04_moon.png",
+    imageBody: { cx: 208, cy: 204, radius: 195 },
     name: "月",
-    color: colors.slate[500],
   },
   [CelestialLevel.Mercury]: {
+    image: import.meta.env.BASE_URL + "space02_mercury.png",
+    imageBody: { cx: 204, cy: 205, radius: 195 },
     name: "水星",
-    color: colors.zinc[600],
   },
   [CelestialLevel.Venus]: {
+    image: import.meta.env.BASE_URL + "space03_venus.png",
+    imageBody: { cx: 206, cy: 205, radius: 195 },
     name: "金星",
-    color: colors.amber[700],
   },
   [CelestialLevel.Earth]: {
+    image: import.meta.env.BASE_URL + "space04_earth.png",
+    imageBody: { cx: 212, cy: 204, radius: 195 },
     name: "地球",
-    color: colors.blue[700],
   },
   [CelestialLevel.Mars]: {
+    image: import.meta.env.BASE_URL + "space05_mars.png",
+    imageBody: { cx: 207, cy: 202, radius: 195 },
     name: "火星",
-    color: colors.red[700],
   },
   [CelestialLevel.Jupiter]: {
+    image: import.meta.env.BASE_URL + "space06_jupitor.png",
+    imageBody: { cx: 210, cy: 202, radius: 195 },
     name: "木星",
-    color: colors.orange[700],
   },
   [CelestialLevel.Saturn]: {
+    image: import.meta.env.BASE_URL + "space07_saturn.png",
+    imageBody: { cx: 366, cy: 233, radius: 195 },
     name: "土星",
-    color: colors.yellow[700],
   },
   [CelestialLevel.Uranus]: {
+    image: import.meta.env.BASE_URL + "space07_uranus.png",
+    imageBody: { cx: 249, cy: 356, radius: 195 },
     name: "天王星",
-    color: colors.cyan[700],
   },
   [CelestialLevel.Neptune]: {
+    image: import.meta.env.BASE_URL + "space08_neptune.png",
+    imageBody: { cx: 209, cy: 205, radius: 195 },
     name: "海王星",
-    color: colors.blue[900],
   },
   [CelestialLevel.Pluto]: {
+    image: import.meta.env.BASE_URL + "space09_pluto.png",
+    imageBody: { cx: 207, cy: 205, radius: 195 },
     name: "冥王星",
-    color: colors.stone[700],
   },
   [CelestialLevel.Sun]: {
+    image: import.meta.env.BASE_URL + "space01_sun.png",
+    imageBody: { cx: 289, cy: 271, radius: 245 },
     name: "太陽",
-    color: colors.amber[600],
   },
-  [CelestialLevel.Galaxy]: {
-    name: "銀河",
-    color: colors.violet[700],
+  [CelestialLevel.BlackHole]: {
+    image: import.meta.env.BASE_URL + "space_blackhole2.png",
+    imageBody: { cx: 394, cy: 328, radius: 295 },
+    name: "ブラックホール",
   },
 };
 
