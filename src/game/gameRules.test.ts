@@ -177,7 +177,7 @@ describe("game rules", () => {
     // Arrange
     const sunMergeScore = 2048;
     const penultimateLevel = CelestialLevel.Sun;
-    const finalLevel = CelestialLevel.Galaxy;
+    const finalLevel = CelestialLevel.BlackHole;
 
     // Act
     const levelBeforePenultimate = nextLevelAfterMerge(CelestialLevel.Pluto);
