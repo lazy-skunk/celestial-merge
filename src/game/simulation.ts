@@ -7,7 +7,8 @@ const GRAVITY = 500;
 const BOUNCE_DAMPING = 0.1;
 const FLOOR_FRICTION = 0.02;
 const BODY_SURFACE_FRICTION = 0.01;
-const COLLISION_SOLVER_ITERATIONS = 3;
+const COLLISION_SOLVER_ITERATIONS = 16;
+const CONTACT_TOLERANCE = 0.001;
 
 type SimulationUpdateResult = {
   bodies: CelestialBody[];
@@ -46,9 +47,8 @@ export function updateSimulation(
   return resolveCollisions(updatedBodies, nextId);
 }
 
-// Merge only on the first pass and exclude consumed bodies from later passes.
-// New bodies join on the next update, so a body cannot merge repeatedly in one update.
-// Later passes separate different levels; matching levels stay in contact for the next merge.
+// Merge once per update, then resolve positions including newly created bodies.
+// New bodies can merge on the next update when still touching.
 function resolveCollisions(bodies: CelestialBody[], nextId: number): SimulationUpdateResult {
   const merges: MergeState = {
     mergedBodyIds: new Set<number>(),
@@ -57,18 +57,13 @@ function resolveCollisions(bodies: CelestialBody[], nextId: number): SimulationU
     scoreGained: 0,
   };
 
-  for (let iteration = 0; iteration < COLLISION_SOLVER_ITERATIONS; iteration++) {
-    resolveBodyPairs(bodies, merges, iteration === 0);
-    for (const body of bodies) {
-      if (!merges.mergedBodyIds.has(body.id)) constrainToBoard(body);
-    }
-  }
+  resolveBodyPairs(bodies, merges);
 
   const resolvedBodies = merges.mergedBodyIds.size
     ? bodies.filter((body) => !merges.mergedBodyIds.has(body.id)).concat(merges.createdBodies)
     : bodies;
 
-  for (const body of merges.createdBodies) constrainToBoard(body);
+  settleBodyPositions(resolvedBodies);
 
   return {
     bodies: resolvedBodies,
@@ -77,7 +72,7 @@ function resolveCollisions(bodies: CelestialBody[], nextId: number): SimulationU
   };
 }
 
-function resolveBodyPairs(bodies: CelestialBody[], merges: MergeState, allowMerging: boolean) {
+function resolveBodyPairs(bodies: CelestialBody[], merges: MergeState) {
   for (let i = 0; i < bodies.length; i++) {
     for (let j = i + 1; j < bodies.length; j++) {
       const firstBody = bodies[i];
@@ -87,13 +82,14 @@ function resolveBodyPairs(bodies: CelestialBody[], merges: MergeState, allowMerg
       }
 
       const geometry = measureBodyPair(firstBody, secondBody);
-      if (geometry.distance >= geometry.minimumDistance) continue;
+      if (geometry.distance > geometry.minimumDistance + CONTACT_TOLERANCE) continue;
 
       if (!canMergeCelestialBodies(firstBody, secondBody)) {
-        separateBodies(firstBody, secondBody, geometry);
+        if (geometry.distance < geometry.minimumDistance) {
+          separateBodies(firstBody, secondBody, geometry);
+        }
         continue;
       }
-      if (!allowMerging) continue;
 
       const mergeResult = mergeCelestialBodies(merges.nextId, firstBody, secondBody);
       if (!mergeResult) continue;
@@ -106,6 +102,26 @@ function resolveBodyPairs(bodies: CelestialBody[], merges: MergeState, allowMerg
       }
       merges.scoreGained += mergeResult.scoreGained;
     }
+  }
+}
+
+function settleBodyPositions(bodies: CelestialBody[]) {
+  for (const body of bodies) constrainToBoard(body);
+
+  for (let iteration = 0; iteration < COLLISION_SOLVER_ITERATIONS; iteration++) {
+    let maximumOverlap = 0;
+    for (let i = 0; i < bodies.length; i++) {
+      for (let j = i + 1; j < bodies.length; j++) {
+        const geometry = measureBodyPair(bodies[i], bodies[j]);
+        const overlap = geometry.minimumDistance - geometry.distance;
+        maximumOverlap = Math.max(maximumOverlap, overlap);
+        if (overlap <= 0) continue;
+        // Repeated corrections change positions only, avoiding repeated friction.
+        separatePositions(bodies[i], bodies[j], geometry, collisionNormal(geometry));
+      }
+    }
+    for (const body of bodies) constrainToBoard(body);
+    if (maximumOverlap <= CONTACT_TOLERANCE) break;
   }
 }
 

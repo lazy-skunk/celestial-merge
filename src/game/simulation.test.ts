@@ -18,6 +18,17 @@ function createTestBody(overrides: Partial<CelestialBody> = {}): CelestialBody {
   };
 }
 
+function expectNoOverlap(bodies: CelestialBody[]) {
+  for (let i = 0; i < bodies.length; i++) {
+    for (let j = i + 1; j < bodies.length; j++) {
+      const distance = Math.hypot(bodies[i].x - bodies[j].x, bodies[i].y - bodies[j].y);
+      const minimumDistance =
+        celestialBodyRadius(bodies[i].level) + celestialBodyRadius(bodies[j].level);
+      expect(distance).toBeGreaterThanOrEqual(minimumDistance - 0.01);
+    }
+  }
+}
+
 describe("simulation", () => {
   test("moves a body downward under gravity", () => {
     // Arrange
@@ -78,8 +89,9 @@ describe("simulation", () => {
       mergeCount,
     );
     expect(result.bodies.filter((body) => body.level === CelestialLevel.Moon)).toEqual(
-      count === bodyThreeId ? [bodies[bodyPairSize]] : [],
+      count === bodyThreeId ? [expect.objectContaining({ id: bodyThreeId })] : [],
     );
+    expectNoOverlap(result.bodies);
     expect(new Set(result.bodies.map((body) => body.id)).size).toBe(result.bodies.length);
     expect(result.nextId).toBe(count + firstBodyId + mergeCount);
     expect(result.scoreGained).toBe(mergeCount * mergeScore(CelestialLevel.Moon));
@@ -88,8 +100,6 @@ describe("simulation", () => {
   test("waits until the next update to merge a newly created body", () => {
     // Arrange
     const defaultBodyId = 1;
-    const defaultBodyX = 100;
-    const defaultBodyY = 200;
     const bodyTwoId = 2;
     const bodyThreeId = 3;
     const bodyFourId = 4;
@@ -113,16 +123,13 @@ describe("simulation", () => {
       expect.objectContaining({
         id: bodyThreeId,
         level: CelestialLevel.Mercury,
-        x: defaultBodyX,
-        y: defaultBodyY,
       }),
       expect.objectContaining({
         id: bodyFourId,
         level: CelestialLevel.Mercury,
-        x: defaultBodyX,
-        y: defaultBodyY,
       }),
     ]);
+    expectNoOverlap(first.bodies);
     expect(first.nextId).toBe(bodyFiveId);
     expect(first.scoreGained).toBe(mergeScore(CelestialLevel.Moon));
     expect(second.bodies).toHaveLength(1);
@@ -137,7 +144,7 @@ describe("simulation", () => {
     const nextIdAfterPair = 3;
     const overlappedBodyX = 110;
     const noElapsedSeconds = 0;
-    const finalLevel = CelestialLevel.Galaxy;
+    const finalLevel = CelestialLevel.BlackHole;
     const bodies = [
       createTestBody({ level: finalLevel }),
       createTestBody({ id: bodyTwoId, level: finalLevel, x: overlappedBodyX }),
@@ -326,6 +333,26 @@ describe("simulation board boundaries", () => {
       expect(body.x).toBeGreaterThanOrEqual(radius);
       expect(body.x).toBeLessThanOrEqual(BOARD_WIDTH - radius);
       expect(body.y).toBeLessThanOrEqual(BOARD_HEIGHT - radius);
+    }
+    expectNoOverlap(result.bodies);
+  });
+
+  test("keeps a stack separated over repeated gravity updates", () => {
+    const levels = [CelestialLevel.Jupiter, CelestialLevel.Earth, CelestialLevel.Mercury];
+    let top = BOARD_HEIGHT;
+    let bodies = levels.map((level, index) => {
+      const radius = celestialBodyRadius(level);
+      const body = createTestBody({ id: index + 1, level, x: BOARD_WIDTH / 2, y: top - radius });
+      top -= radius * 2;
+      return body;
+    });
+    for (let frame = 0; frame < 180; frame++) {
+      bodies = updateSimulation(bodies, 4, 1 / 60).bodies;
+      expect(bodies).toHaveLength(3);
+      expectNoOverlap(bodies);
+      for (const body of bodies) {
+        expect(body.y + celestialBodyRadius(body.level)).toBeLessThanOrEqual(BOARD_HEIGHT);
+      }
     }
   });
 
