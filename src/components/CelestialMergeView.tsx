@@ -34,7 +34,10 @@ export function CelestialMergeView({
   ];
 
   return (
-    <main className="grid min-h-screen place-items-center p-4">
+    <main
+      className="grid min-h-screen place-items-center bg-cover bg-center bg-no-repeat p-4"
+      style={{ backgroundImage: `url(${import.meta.env.BASE_URL}bg_moon_getsumen.jpg)` }}
+    >
       <section className="w-full max-w-sm rounded-xl border border-slate-700 bg-slate-900 p-4">
         <header className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-slate-200">天体マージ</h1>
@@ -122,6 +125,23 @@ function CelestialBodyPreview({
   level: CelestialLevel;
   size?: number;
 }) {
+  const definition = CELESTIAL_BODIES[level];
+  if (definition.image) {
+    return (
+      <img
+        src={definition.image}
+        alt={definition.name}
+        width={size}
+        height={size}
+        className="shrink-0 object-contain"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+  return <DrawnCelestialBodyPreview level={level} size={size} />;
+}
+
+function DrawnCelestialBodyPreview({ level, size }: { level: CelestialLevel; size: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
