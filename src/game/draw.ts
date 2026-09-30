@@ -72,42 +72,6 @@ export function drawCelestialBody(ctx: CanvasRenderingContext2D, body: DrawableB
     ctx.arc(x, y, radius, 0, FULL_CIRCLE);
     ctx.fillStyle = colors.slate[500];
     ctx.fill();
-    if (body.level === CelestialLevel.BlackHole) drawBlackHole(ctx, x, y, radius);
   }
-  ctx.restore();
-}
-
-function drawBlackHole(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) {
-  ctx.save();
-  ctx.translate(x, y);
-
-  ctx.fillStyle = colors.violet[950];
-  ctx.beginPath();
-  ctx.arc(0, 0, radius, 0, FULL_CIRCLE);
-  ctx.fill();
-
-  ctx.rotate(-0.25);
-  ctx.strokeStyle = colors.sky[200];
-  ctx.lineWidth = Math.max(3, radius * 0.18);
-  ctx.beginPath();
-  ctx.ellipse(0, 0, radius * 0.9, radius * 0.36, 0, 0, FULL_CIRCLE);
-  ctx.stroke();
-
-  ctx.strokeStyle = colors.blue[500];
-  ctx.lineWidth = Math.max(2, radius * 0.08);
-  ctx.beginPath();
-  ctx.ellipse(0, 0, radius * 1.05, radius * 0.43, 0, 0, FULL_CIRCLE);
-  ctx.stroke();
-
-  ctx.fillStyle = colors.black;
-  ctx.beginPath();
-  ctx.arc(0, 0, radius * 0.38, 0, FULL_CIRCLE);
-  ctx.fill();
-
-  ctx.strokeStyle = colors.slate[100];
-  ctx.lineWidth = Math.max(1, radius * 0.04);
-  ctx.beginPath();
-  ctx.arc(0, 0, radius * 0.42, 0, FULL_CIRCLE);
-  ctx.stroke();
   ctx.restore();
 }

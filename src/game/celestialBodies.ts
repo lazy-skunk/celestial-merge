@@ -15,7 +15,6 @@ export const CelestialLevel = {
   Neptune: 8,
   Pluto: 9,
   Sun: 10,
-  BlackHole: 11,
 } as const;
 
 export type CelestialLevel = (typeof CelestialLevel)[keyof typeof CelestialLevel];
@@ -87,11 +86,6 @@ export const CELESTIAL_BODIES: Record<CelestialLevel, CelestialBodyDefinition> =
     image: import.meta.env.BASE_URL + "space01_sun.png",
     imageBody: { cx: 289, cy: 271, radius: 245 },
     name: "太陽",
-  },
-  [CelestialLevel.BlackHole]: {
-    image: import.meta.env.BASE_URL + "space_blackhole2.png",
-    imageBody: { cx: 394, cy: 328, radius: 295 },
-    name: "ブラックホール",
   },
 };
 

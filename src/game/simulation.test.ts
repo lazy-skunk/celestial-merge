@@ -144,7 +144,7 @@ describe("simulation", () => {
     const nextIdAfterPair = 3;
     const overlappedBodyX = 110;
     const noElapsedSeconds = 0;
-    const finalLevel = CelestialLevel.BlackHole;
+    const finalLevel = CelestialLevel.Sun;
     const bodies = [
       createTestBody({ level: finalLevel }),
       createTestBody({ id: bodyTwoId, level: finalLevel, x: overlappedBodyX }),

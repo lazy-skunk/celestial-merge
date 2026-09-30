@@ -88,10 +88,9 @@ export function updateDangerLineExposure(body: CelestialBody, dt: number) {
 }
 
 export function mergeScore(level: CelestialLevel) {
-  // Creating a black hole and merging two black holes both award 2048 points.
-  return 2 ** Math.min(level + 1, CelestialLevel.BlackHole);
+  return 2 ** (level + 1);
 }
 
 export function nextLevelAfterMerge(level: CelestialLevel): CelestialLevel | null {
-  return level < CelestialLevel.BlackHole ? ((level + 1) as CelestialLevel) : null;
+  return level < CelestialLevel.Sun ? ((level + 1) as CelestialLevel) : null;
 }

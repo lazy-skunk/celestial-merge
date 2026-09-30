@@ -175,20 +175,20 @@ describe("game rules", () => {
 
   test("the progression reaches 2048 before the final bodies disappear", () => {
     // Arrange
-    const sunMergeScore = 2048;
-    const penultimateLevel = CelestialLevel.Sun;
-    const finalLevel = CelestialLevel.BlackHole;
+    const finalMergeScore = 2048;
+    const levelBeforeFinal = CelestialLevel.Pluto;
+    const finalLevel = CelestialLevel.Sun;
 
     // Act
-    const levelBeforePenultimate = nextLevelAfterMerge(CelestialLevel.Pluto);
-    const levelBeforeFinal = nextLevelAfterMerge(penultimateLevel);
-    const penultimateScore = mergeScore(penultimateLevel);
+    const nextLevelBeforeFinal = nextLevelAfterMerge(CelestialLevel.Neptune);
+    const nextFinalLevel = nextLevelAfterMerge(levelBeforeFinal);
+    const finalScore = mergeScore(finalLevel);
     const afterFinalLevel = nextLevelAfterMerge(finalLevel);
 
     // Assert
-    expect(levelBeforePenultimate).toBe(penultimateLevel);
-    expect(levelBeforeFinal).toBe(finalLevel);
-    expect(penultimateScore).toBe(sunMergeScore);
+    expect(nextLevelBeforeFinal).toBe(levelBeforeFinal);
+    expect(nextFinalLevel).toBe(finalLevel);
+    expect(finalScore).toBe(finalMergeScore);
     expect(afterFinalLevel).toBeNull();
   });
 });
