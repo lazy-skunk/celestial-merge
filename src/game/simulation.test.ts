@@ -253,7 +253,7 @@ describe("simulation", () => {
     expect(physicsResult.bodies[0].x).not.toBe(defaultBodyX);
   });
 
-  test("slightly reduces sliding speed between different overlapping bodies", () => {
+  test("does not slow sliding between different overlapping bodies", () => {
     // Arrange
     const bodyTwoId = 2;
     const nextIdAfterPair = 3;
@@ -275,7 +275,7 @@ describe("simulation", () => {
     const physicsResult = updateSimulation(bodies, nextIdAfterPair, noElapsedSeconds);
 
     // Assert
-    expect(physicsResult.bodies[1].vy - physicsResult.bodies[0].vy).toBeLessThan(downwardSpeed);
+    expect(physicsResult.bodies[1].vy - physicsResult.bodies[0].vy).toBe(downwardSpeed);
   });
 
   test("does not mutate its input", () => {

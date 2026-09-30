@@ -5,8 +5,7 @@ import { canMergeCelestialBodies, mergeCelestialBodies } from "./gameRules";
 
 const GRAVITY = 500;
 const BOUNCE_DAMPING = 0.1;
-const FLOOR_FRICTION = 0.02;
-const BODY_SURFACE_FRICTION = 0.01;
+const FLOOR_FRICTION = 0.01;
 const COLLISION_SOLVER_ITERATIONS = 16;
 const CONTACT_TOLERANCE = 0.001;
 
@@ -116,7 +115,7 @@ function settleBodyPositions(bodies: CelestialBody[]) {
         const overlap = geometry.minimumDistance - geometry.distance;
         maximumOverlap = Math.max(maximumOverlap, overlap);
         if (overlap <= 0) continue;
-        // Repeated corrections change positions only, avoiding repeated friction.
+        // Repeated corrections change positions only, so velocity changes happen once per contact.
         separatePositions(bodies[i], bodies[j], geometry, collisionNormal(geometry));
       }
     }
@@ -173,7 +172,6 @@ function separateBodies(
   const normal = collisionNormal(geometry);
   separatePositions(firstBody, secondBody, geometry, normal);
   applyBounce(firstBody, secondBody, normal);
-  applySurfaceFriction(firstBody, secondBody, normal);
 }
 
 function collisionNormal({ dx, dy, distance, positionsAreIdentical }: BodyPairGeometry) {
@@ -209,19 +207,4 @@ function applyBounce(
   firstBody.vy -= impulse * ny;
   secondBody.vx += impulse * nx;
   secondBody.vy += impulse * ny;
-}
-
-function applySurfaceFriction(
-  firstBody: CelestialBody,
-  secondBody: CelestialBody,
-  { nx, ny }: CollisionNormal,
-) {
-  const tx = -ny;
-  const ty = nx;
-  const tangentSpeed = (secondBody.vx - firstBody.vx) * tx + (secondBody.vy - firstBody.vy) * ty;
-  const friction = (-tangentSpeed * BODY_SURFACE_FRICTION) / 2;
-  firstBody.vx -= friction * tx;
-  firstBody.vy -= friction * ty;
-  secondBody.vx += friction * tx;
-  secondBody.vy += friction * ty;
 }
