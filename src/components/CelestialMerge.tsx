@@ -1,6 +1,7 @@
 import { BOARD_HEIGHT, BOARD_WIDTH } from "../game/board";
 import { drawBoard } from "../game/rendering/draw";
 import { GameEngine, type GameSnapshot } from "../game/GameEngine";
+import { createGameAudio } from "../game/gameAudio";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CelestialMergeView } from "./CelestialMergeView";
 
@@ -21,7 +22,10 @@ export function CelestialMerge() {
 
   // Keep one engine instance for the component lifetime. This is not render state;
   // lazy useState avoids the react(refs) warning caused by reading ref.current during render.
-  const [engine] = useState(() => new GameEngine());
+  const [gameAudio] = useState(() => createGameAudio());
+  const [engine] = useState(
+    () => new GameEngine({ onMerge: (level) => gameAudio.playMerge(level) }),
+  );
   const [viewState, setViewState] = useState(() => selectViewState(engine.snapshot()));
 
   const syncViewState = useCallback((snapshot: GameSnapshot) => {
@@ -41,8 +45,10 @@ export function CelestialMerge() {
   }, [engine, syncViewState]);
 
   const dropCelestialBody = useCallback(() => {
+    gameAudio.unlock();
+    gameAudio.startBgm();
     if (engine.drop()) syncViewState(engine.snapshot());
-  }, [engine, syncViewState]);
+  }, [engine, gameAudio, syncViewState]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -59,9 +65,10 @@ export function CelestialMerge() {
 
     return () => {
       stopGameLoop();
+      gameAudio.stopBgm();
       window.removeEventListener("resize", resizeCanvas);
     };
-  }, [engine, syncViewState]);
+  }, [engine, gameAudio, syncViewState]);
 
   const updateDropX = (clientX: number) => {
     const canvas = canvasRef.current;
