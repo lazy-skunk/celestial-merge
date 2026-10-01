@@ -1,5 +1,5 @@
 import { BOARD_HEIGHT, BOARD_WIDTH } from "../game/board";
-import { drawBoard } from "../game/draw";
+import { drawBoard } from "../game/rendering/draw";
 import { GameEngine, type GameSnapshot } from "../game/GameEngine";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CelestialMergeView } from "./CelestialMergeView";

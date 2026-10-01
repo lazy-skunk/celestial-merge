@@ -3,7 +3,7 @@ import { BOARD_WIDTH } from "./board";
 import { celestialBodyRadius, CelestialLevel } from "./celestialBodies";
 import { GameEngine } from "./GameEngine";
 import { createCelestialBody, GAME_OVER_GRACE_SECONDS } from "./gameRules";
-import * as simulation from "./simulation";
+import * as simulation from "./physics/simulation";
 
 afterEach(() => vi.restoreAllMocks());
 

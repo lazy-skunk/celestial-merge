@@ -1,7 +1,7 @@
-import { BOARD_HEIGHT, BOARD_WIDTH } from "./board";
-import { celestialBodyRadius } from "./celestialBodies";
-import type { CelestialBody } from "./gameRules";
-import { canMergeCelestialBodies, mergeCelestialBodies } from "./gameRules";
+import { BOARD_HEIGHT, BOARD_WIDTH } from "../board";
+import { celestialBodyRadius } from "../celestialBodies";
+import type { CelestialBody } from "../gameRules";
+import { canMergeCelestialBodies, mergeCelestialBodies } from "../gameRules";
 
 const GRAVITY = 500;
 const BOUNCE_DAMPING = 0.1;

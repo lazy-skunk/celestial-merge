@@ -4,7 +4,7 @@ import {
   CelestialLevel,
   celestialBodyRadius,
 } from "../game/celestialBodies";
-import { drawCelestialBody } from "../game/draw";
+import { drawCelestialBody } from "../game/rendering/draw";
 import { useEffect, useRef, type RefObject } from "react";
 
 const NEXT_BODY_PREVIEW_SIZE = 36;

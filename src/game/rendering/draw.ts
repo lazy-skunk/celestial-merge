@@ -1,11 +1,11 @@
 import colors from "tailwindcss/colors";
-import { BOARD_HEIGHT, BOARD_WIDTH, DANGER_LINE, SPAWN_Y } from "./board";
-import { CELESTIAL_BODIES, CelestialLevel, celestialBodyRadius } from "./celestialBodies";
+import { BOARD_HEIGHT, BOARD_WIDTH, DANGER_LINE, SPAWN_Y } from "../board";
+import { CELESTIAL_BODIES, CelestialLevel, celestialBodyRadius } from "../celestialBodies";
 
 type DrawableBody = Readonly<{ level: CelestialLevel; x: number; y: number }>;
 
 const FULL_CIRCLE = Math.PI * 2;
-const GUIDE_DASH_LENGTH = 8;
+const GUIDE_DASH_LENGTH = 5;
 const PREVIEW_OPACITY = 0.75;
 const COOLDOWN_PREVIEW_OPACITY = 0.25;
 

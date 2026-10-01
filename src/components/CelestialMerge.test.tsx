@@ -3,7 +3,7 @@ import { cleanup, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import { CelestialMerge } from "./CelestialMerge";
 
-vi.mock("../game/draw", () => ({
+vi.mock("../game/rendering/draw", () => ({
   drawBoard: vi.fn(),
   drawCelestialBody: vi.fn(),
 }));
