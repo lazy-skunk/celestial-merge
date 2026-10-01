@@ -190,7 +190,7 @@ describe("simulation", () => {
     expect(result.bodies[0].dangerLineExposureFor).toBe(dangerExposureLongerSeconds);
   });
 
-  test("bounces a body away from the wall and floor", () => {
+  test("stops a body moving into the wall and floor", () => {
     // Arrange
     const nextIdAfterSingleBody = 2;
     const noElapsedSeconds = 0;
@@ -210,11 +210,11 @@ describe("simulation", () => {
     const result = updateSimulation([celestialBody], nextIdAfterSingleBody, noElapsedSeconds);
 
     // Assert
-    expect(result.bodies[0].vx).toBeGreaterThan(noVelocity);
-    expect(result.bodies[0].vy).toBeLessThan(noVelocity);
+    expect(result.bodies[0].vx).toBe(noVelocity);
+    expect(result.bodies[0].vy).toBe(noVelocity);
   });
 
-  test("slows horizontal movement on the floor", () => {
+  test("keeps horizontal movement on the floor", () => {
     // Arrange
     const nextIdAfterSingleBody = 2;
     const noElapsedSeconds = 0;
@@ -231,7 +231,7 @@ describe("simulation", () => {
     const result = updateSimulation([celestialBody], nextIdAfterSingleBody, noElapsedSeconds);
 
     // Assert
-    expect(result.bodies[0].vx).toBeLessThan(rightwardSpeed);
+    expect(result.bodies[0].vx).toBe(rightwardSpeed);
   });
 
   test("separates different overlapping bodies without merging them", () => {

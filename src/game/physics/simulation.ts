@@ -4,8 +4,6 @@ import type { CelestialBody } from "../gameRules";
 import { canMergeCelestialBodies, mergeCelestialBodies } from "../gameRules";
 
 const GRAVITY = 500;
-const BOUNCE_DAMPING = 0.1;
-const FLOOR_FRICTION = 0.01;
 const COLLISION_SOLVER_ITERATIONS = 16;
 const CONTACT_TOLERANCE = 0.001;
 
@@ -121,7 +119,7 @@ function settleBodyPositions(bodies: CelestialBody[]) {
         maximumOverlap = Math.max(maximumOverlap, overlap);
         if (overlap <= 0) continue;
         // Repeated corrections change positions only, so velocity changes happen once per contact.
-        separatePositions(bodies[i], bodies[j], geometry, collisionNormal(geometry));
+        separatePositions(bodies[i], bodies[j], geometry, measureCollisionNormal(geometry));
       }
     }
     for (const body of bodies) constrainToBoard(body);
@@ -155,16 +153,15 @@ function constrainToBoard(body: CelestialBody) {
   const radius = celestialBodyRadius(body.level);
   if (body.x < radius) {
     body.x = radius;
-    if (body.vx < 0) body.vx *= -BOUNCE_DAMPING;
+    if (body.vx < 0) body.vx = 0;
   } else if (body.x > BOARD_WIDTH - radius) {
     body.x = BOARD_WIDTH - radius;
-    if (body.vx > 0) body.vx *= -BOUNCE_DAMPING;
+    if (body.vx > 0) body.vx = 0;
   }
   if (body.y > BOARD_HEIGHT - radius) {
     body.y = BOARD_HEIGHT - radius;
     if (body.vy > 0) {
-      body.vy *= -BOUNCE_DAMPING;
-      body.vx *= 1 - FLOOR_FRICTION;
+      body.vy = 0;
     }
   }
 }
@@ -174,12 +171,12 @@ function separateBodies(
   secondBody: CelestialBody,
   geometry: BodyPairGeometry,
 ) {
-  const normal = collisionNormal(geometry);
+  const normal = measureCollisionNormal(geometry);
   separatePositions(firstBody, secondBody, geometry, normal);
-  applyBounce(firstBody, secondBody, normal);
+  matchCollisionVelocity(firstBody, secondBody, normal);
 }
 
-function collisionNormal({ dx, dy, distance, positionsAreIdentical }: BodyPairGeometry) {
+function measureCollisionNormal({ dx, dy, distance, positionsAreIdentical }: BodyPairGeometry) {
   return {
     nx: positionsAreIdentical ? 1 : dx / distance,
     ny: positionsAreIdentical ? 0 : dy / distance,
@@ -199,7 +196,7 @@ function separatePositions(
   secondBody.y += (ny * overlap) / 2;
 }
 
-function applyBounce(
+function matchCollisionVelocity(
   firstBody: CelestialBody,
   secondBody: CelestialBody,
   { nx, ny }: CollisionNormal,
@@ -207,7 +204,7 @@ function applyBounce(
   const relativeSpeed = (secondBody.vx - firstBody.vx) * nx + (secondBody.vy - firstBody.vy) * ny;
   if (relativeSpeed >= 0) return;
 
-  const impulse = (-(1 + BOUNCE_DAMPING) * relativeSpeed) / 2;
+  const impulse = -relativeSpeed / 2;
   firstBody.vx -= impulse * nx;
   firstBody.vy -= impulse * ny;
   secondBody.vx += impulse * nx;
