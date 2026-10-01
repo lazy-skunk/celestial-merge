@@ -24,6 +24,11 @@ export type GameSnapshot = Readonly<{
   canDrop: boolean;
 }>;
 
+type GameEngineOptions = Readonly<{
+  random?: () => number;
+  onMerge?: (level: CelestialLevel) => void;
+}>;
+
 export class GameEngine {
   private accumulatedTime = 0;
   private bodies: CelestialBody[] = [];
@@ -35,11 +40,15 @@ export class GameEngine {
   private isGameOver = false;
   private dropCooldownRemaining = 0;
   private readonly random: () => number;
+  private readonly onMerge?: (level: CelestialLevel) => void;
 
-  constructor(random: () => number = Math.random) {
-    this.random = random;
-    this.dropLevel = randomDropLevel(random);
-    this.nextDropLevel = randomDropLevel(random);
+  constructor(randomOrOptions: (() => number) | GameEngineOptions = Math.random) {
+    const options =
+      typeof randomOrOptions === "function" ? { random: randomOrOptions } : randomOrOptions;
+    this.random = options.random ?? Math.random;
+    this.onMerge = options.onMerge;
+    this.dropLevel = randomDropLevel(this.random);
+    this.nextDropLevel = randomDropLevel(this.random);
   }
 
   reset() {
@@ -87,6 +96,7 @@ export class GameEngine {
     this.bodies = result.bodies;
     this.nextId = result.nextId;
     this.score += result.scoreGained;
+    for (const level of result.mergedLevels) this.onMerge?.(level);
     for (const body of this.bodies) {
       const isDangerous = updateDangerLineExposure(body, dt);
       this.isGameOver = this.isGameOver || isDangerous;

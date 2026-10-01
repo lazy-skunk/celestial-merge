@@ -1,5 +1,5 @@
 import { BOARD_HEIGHT, BOARD_WIDTH } from "../board";
-import { celestialBodyRadius } from "../celestialBodies";
+import { celestialBodyRadius, type CelestialLevel } from "../celestialBodies";
 import type { CelestialBody } from "../gameRules";
 import { canMergeCelestialBodies, mergeCelestialBodies } from "../gameRules";
 
@@ -12,6 +12,7 @@ const CONTACT_TOLERANCE = 0.001;
 type SimulationUpdateResult = {
   bodies: CelestialBody[];
   nextId: number;
+  mergedLevels: CelestialLevel[];
   scoreGained: number;
 };
 
@@ -19,6 +20,7 @@ type MergeState = {
   mergedBodyIds: Set<number>;
   createdBodies: CelestialBody[];
   nextId: number;
+  mergedLevels: CelestialLevel[];
   scoreGained: number;
 };
 
@@ -53,6 +55,7 @@ function resolveCollisions(bodies: CelestialBody[], nextId: number): SimulationU
     mergedBodyIds: new Set<number>(),
     createdBodies: [],
     nextId,
+    mergedLevels: [],
     scoreGained: 0,
   };
 
@@ -67,6 +70,7 @@ function resolveCollisions(bodies: CelestialBody[], nextId: number): SimulationU
   return {
     bodies: resolvedBodies,
     nextId: merges.nextId,
+    mergedLevels: merges.mergedLevels,
     scoreGained: merges.scoreGained,
   };
 }
@@ -99,6 +103,7 @@ function resolveBodyPairs(bodies: CelestialBody[], merges: MergeState) {
         merges.createdBodies.push(mergeResult.body);
         merges.nextId++;
       }
+      merges.mergedLevels.push(mergeResult.mergedLevel);
       merges.scoreGained += mergeResult.scoreGained;
     }
   }

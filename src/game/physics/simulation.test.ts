@@ -66,6 +66,7 @@ describe("simulation", () => {
       level: CelestialLevel.Mercury,
     });
     expect(physicsResult.nextId).toBe(bodyFourId);
+    expect(physicsResult.mergedLevels).toEqual([CelestialLevel.Moon]);
     expect(physicsResult.scoreGained).toBe(mergeScore(CelestialLevel.Moon));
   });
 
@@ -94,6 +95,9 @@ describe("simulation", () => {
     expectNoOverlap(result.bodies);
     expect(new Set(result.bodies.map((body) => body.id)).size).toBe(result.bodies.length);
     expect(result.nextId).toBe(count + firstBodyId + mergeCount);
+    expect(result.mergedLevels).toEqual(
+      Array.from({ length: mergeCount }, () => CelestialLevel.Moon),
+    );
     expect(result.scoreGained).toBe(mergeCount * mergeScore(CelestialLevel.Moon));
   });
 
@@ -131,10 +135,12 @@ describe("simulation", () => {
     ]);
     expectNoOverlap(first.bodies);
     expect(first.nextId).toBe(bodyFiveId);
+    expect(first.mergedLevels).toEqual([CelestialLevel.Moon]);
     expect(first.scoreGained).toBe(mergeScore(CelestialLevel.Moon));
     expect(second.bodies).toHaveLength(1);
     expect(second.bodies[0]).toMatchObject({ id: bodyFiveId, level: CelestialLevel.Venus });
     expect(second.nextId).toBe(bodySixId);
+    expect(second.mergedLevels).toEqual([CelestialLevel.Mercury]);
     expect(second.scoreGained).toBe(mergeScore(CelestialLevel.Mercury));
   });
 
@@ -156,6 +162,7 @@ describe("simulation", () => {
     // Assert
     expect(physicsResult.bodies).toHaveLength(0);
     expect(physicsResult.nextId).toBe(nextIdAfterPair);
+    expect(physicsResult.mergedLevels).toEqual([finalLevel]);
     expect(physicsResult.scoreGained).toBe(mergeScore(finalLevel));
   });
 
@@ -249,6 +256,7 @@ describe("simulation", () => {
 
     // Assert
     expect(physicsResult.bodies).toHaveLength(2);
+    expect(physicsResult.mergedLevels).toEqual([]);
     expect(physicsResult.scoreGained).toBe(noScoreGained);
     expect(physicsResult.bodies[0].x).not.toBe(defaultBodyX);
   });

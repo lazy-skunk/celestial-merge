@@ -184,6 +184,7 @@ describe("GameEngine", () => {
     const update = vi.spyOn(simulation, "updateSimulation").mockReturnValue({
       bodies,
       nextId: bodyFourId,
+      mergedLevels: [],
       scoreGained: scoreGainedFromSimulation,
     });
     const engine = new GameEngine(() => minRandom);
@@ -213,6 +214,49 @@ describe("GameEngine", () => {
     expect(resetSnapshot).toMatchObject({ score: 0, isGameOver: false, canDrop: true });
   });
 
+  test("notifies merge levels after simulation steps", () => {
+    // Arrange
+    const minRandom = 0;
+    const noScoreGained = 0;
+    const firstScoreGained = 2;
+    const secondScoreGained = 8;
+    const firstMergedLevel = CelestialLevel.Moon;
+    const secondMergedLevel = CelestialLevel.Venus;
+    const advanceOneStepSeconds = 0.02;
+    const onMerge = vi.fn();
+    const update = vi.spyOn(simulation, "updateSimulation");
+    update
+      .mockReturnValueOnce({
+        bodies: [],
+        nextId: 1,
+        mergedLevels: [],
+        scoreGained: noScoreGained,
+      })
+      .mockReturnValueOnce({
+        bodies: [],
+        nextId: 1,
+        mergedLevels: [firstMergedLevel],
+        scoreGained: firstScoreGained,
+      })
+      .mockReturnValueOnce({
+        bodies: [],
+        nextId: 1,
+        mergedLevels: [secondMergedLevel],
+        scoreGained: secondScoreGained,
+      });
+    const engine = new GameEngine({ random: () => minRandom, onMerge });
+
+    // Act
+    engine.advance(advanceOneStepSeconds);
+    engine.advance(advanceOneStepSeconds);
+    engine.advance(advanceOneStepSeconds);
+
+    // Assert
+    expect(onMerge).toHaveBeenCalledTimes(2);
+    expect(onMerge).toHaveBeenNthCalledWith(1, firstMergedLevel);
+    expect(onMerge).toHaveBeenNthCalledWith(2, secondMergedLevel);
+  });
+
   test("allows bodies above the line until the grace period is exceeded", () => {
     // Arrange
     const minRandom = 0;
@@ -226,6 +270,7 @@ describe("GameEngine", () => {
     vi.spyOn(simulation, "updateSimulation").mockReturnValue({
       bodies: [createCelestialBody(bodyOneId, CelestialLevel.Moon, bodyOneX)],
       nextId: bodyTwoId,
+      mergedLevels: [],
       scoreGained: noScoreGained,
     });
     const engine = new GameEngine(() => minRandom);

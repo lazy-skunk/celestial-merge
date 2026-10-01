@@ -115,6 +115,7 @@ describe("game rules", () => {
       level: CelestialLevel.Mercury,
       x: mergedBodyX,
     });
+    expect(mergeResult?.mergedLevel).toBe(CelestialLevel.Moon);
     expect(mergeResult?.scoreGained).toBe(mergeScore(CelestialLevel.Moon));
   });
 

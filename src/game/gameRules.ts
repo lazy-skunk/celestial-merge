@@ -16,6 +16,7 @@ export type CelestialBody = {
 
 export type CelestialMergeResult = {
   body: CelestialBody | null;
+  mergedLevel: CelestialLevel;
   scoreGained: number;
 };
 
@@ -66,6 +67,7 @@ export function mergeCelestialBodies(
 
   return {
     body,
+    mergedLevel: firstBody.level,
     scoreGained: mergeScore(firstBody.level),
   };
 }
