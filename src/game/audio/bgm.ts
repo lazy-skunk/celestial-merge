@@ -1,9 +1,8 @@
 import type { AudioContextStore, BrowserAudioContext } from "./audioContext";
 
 const MILLISECONDS_PER_SECOND = 1000;
-const BGM_NOTE_SECONDS = 5;
-const BGM_GAIN = 0.2;
-const MELODY_NOTE_GAIN = 1;
+const NOTE_SECONDS = 5;
+const BGM_GAIN = 0.5;
 const SILENT_GAIN = 0.001;
 const NOTE_FREQUENCIES = {
   C4: 261.63,
@@ -44,13 +43,8 @@ const monstro_town_star_song = [
   NOTE_FREQUENCIES.E4,
 ];
 const RANDOM_MELODY_NOTE_COUNT = 8;
-const BGM_MELODY_FREQUENCIES = [
-  ...frogfucius_suite_18,
-  ...moleville_blues,
-  ...monstro_town_star_song,
-];
-const BGM_LOOP_SECONDS =
-  (BGM_MELODY_FREQUENCIES.length + RANDOM_MELODY_NOTE_COUNT) * BGM_NOTE_SECONDS;
+const MELODY_FREQUENCIES = [...frogfucius_suite_18, ...moleville_blues, ...monstro_town_star_song];
+const LOOP_SECONDS = (MELODY_FREQUENCIES.length + RANDOM_MELODY_NOTE_COUNT) * NOTE_SECONDS;
 const NOTE_FREQUENCY_VALUES = Object.values(NOTE_FREQUENCIES);
 
 function randomFrequency() {
@@ -65,52 +59,52 @@ function createRandomMelodyFrequencies() {
 }
 
 export function createBgmPlayer({ getAudioContext }: AudioContextStore) {
-  let bgmGain: GainNode | null = null;
   let bgmTimer: number | null = null;
+  let isPlaying = false;
+  const activeGains = new Set<GainNode>();
 
   const scheduleBgmLoop = (context: BrowserAudioContext, startTime: number) => {
-    const output = bgmGain;
-    if (!output) return;
+    if (!isPlaying) return;
 
-    const melodyFrequencies = [...BGM_MELODY_FREQUENCIES, ...createRandomMelodyFrequencies()];
+    const melodyFrequencies = [...MELODY_FREQUENCIES, ...createRandomMelodyFrequencies()];
 
     melodyFrequencies.forEach((frequency, index) => {
-      const noteStart = startTime + index * BGM_NOTE_SECONDS;
-      const noteEnd = noteStart + BGM_NOTE_SECONDS;
-      const notePeak = noteStart + BGM_NOTE_SECONDS / 2;
+      const noteStart = startTime + index * NOTE_SECONDS;
+      const noteEnd = noteStart + NOTE_SECONDS;
+      const notePeak = noteStart + NOTE_SECONDS / 2;
       const oscillator = context.createOscillator();
       const gain = context.createGain();
 
       oscillator.type = "sine";
       oscillator.frequency.setValueAtTime(frequency, noteStart);
       gain.gain.setValueAtTime(SILENT_GAIN, noteStart);
-      gain.gain.linearRampToValueAtTime(MELODY_NOTE_GAIN, notePeak);
+      gain.gain.linearRampToValueAtTime(BGM_GAIN, notePeak);
       gain.gain.exponentialRampToValueAtTime(SILENT_GAIN, noteEnd);
 
       oscillator.connect(gain);
-      gain.connect(output);
+      gain.connect(context.destination);
+      activeGains.add(gain);
       oscillator.start(noteStart);
       oscillator.stop(noteEnd);
       oscillator.addEventListener("ended", () => {
         oscillator.disconnect();
-        gain.disconnect();
+        if (activeGains.delete(gain)) {
+          gain.disconnect();
+        }
       });
     });
   };
 
   const start = () => {
     const context = getAudioContext();
-    if (!context || bgmGain) return;
-
-    bgmGain = context.createGain();
-    bgmGain.gain.setValueAtTime(BGM_GAIN, context.currentTime);
-    bgmGain.connect(context.destination);
+    if (!context || isPlaying) return;
+    isPlaying = true;
 
     const scheduleNextLoop = () => {
       const nextContext = getAudioContext();
-      if (!nextContext || !bgmGain) return;
+      if (!nextContext || !isPlaying) return;
       scheduleBgmLoop(nextContext, nextContext.currentTime);
-      bgmTimer = window.setTimeout(scheduleNextLoop, BGM_LOOP_SECONDS * MILLISECONDS_PER_SECOND);
+      bgmTimer = window.setTimeout(scheduleNextLoop, LOOP_SECONDS * MILLISECONDS_PER_SECOND);
     };
 
     void context.resume();
@@ -122,8 +116,11 @@ export function createBgmPlayer({ getAudioContext }: AudioContextStore) {
       window.clearTimeout(bgmTimer);
       bgmTimer = null;
     }
-    bgmGain?.disconnect();
-    bgmGain = null;
+    isPlaying = false;
+    activeGains.forEach((gain) => {
+      gain.disconnect();
+    });
+    activeGains.clear();
   };
 
   return { start, stop };
