@@ -1,10 +1,11 @@
 import type { AudioContextStore } from "./audioContext";
-import { SILENT_GAIN, SOUND_EFFECT_GAIN } from "./audioLevels";
 import type { CelestialLevel } from "../celestialBodies";
 
 const MIN_FREQUENCY_HZ = 440;
 const MAX_FREQUENCY_HZ = 880;
 const POP_DURATION_SECONDS = 0.1;
+const SOUND_EFFECT_GAIN = 0.1;
+const SILENT_GAIN = 0.001;
 
 type SoundEffectOptions = Readonly<{
   pitchSlotCount: number;

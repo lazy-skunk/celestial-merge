@@ -1,8 +1,10 @@
 import type { AudioContextStore, BrowserAudioContext } from "./audioContext";
-import { BGM_GAIN, MELODY_NOTE_GAIN, SILENT_GAIN } from "./audioLevels";
 
 const MILLISECONDS_PER_SECOND = 1000;
 const BGM_NOTE_SECONDS = 6;
+const BGM_GAIN = 0.2;
+const MELODY_NOTE_GAIN = 1;
+const SILENT_GAIN = 0.001;
 const NOTE_FREQUENCIES = {
   C4: 261.63,
   D4: 293.66,
