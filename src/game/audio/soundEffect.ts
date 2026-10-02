@@ -1,5 +1,5 @@
 import type { AudioContextStore } from "./audioContext";
-import { MERGE_SOUND_GAIN, SILENT_GAIN } from "./audioLevels";
+import { SILENT_GAIN, SOUND_EFFECT_GAIN } from "./audioLevels";
 import type { CelestialLevel } from "../celestialBodies";
 
 const MIN_FREQUENCY_HZ = 440;
@@ -27,7 +27,7 @@ export function createSoundEffectPlayer(
     oscillator.type = "sine";
     oscillator.frequency.setValueAtTime(frequency, startTime);
 
-    gain.gain.setValueAtTime(MERGE_SOUND_GAIN, startTime);
+    gain.gain.setValueAtTime(SOUND_EFFECT_GAIN, startTime);
     gain.gain.exponentialRampToValueAtTime(SILENT_GAIN, endTime);
 
     oscillator.connect(gain);

@@ -40,7 +40,7 @@ export function CelestialMergeView({
     >
       <section className="w-full max-w-sm rounded-xl border border-slate-700 bg-slate-900 p-4">
         <header className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-slate-200">天体マージ</h1>
+          <h1 className="text-xl font-bold text-slate-200">ほしおとし</h1>
           <div className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-right">
             <span className="block text-xs text-slate-400">得点</span>
             <strong>{displayedScore}</strong>
