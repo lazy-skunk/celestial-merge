@@ -97,7 +97,7 @@ describe("GameEngine", () => {
     // Arrange
     const minRandom = 0;
     const dropCooldownStepSeconds = 0.01;
-    const dropCooldownStepsBeforeReady = 32;
+    const dropCooldownStepsBeforeReady = 19;
     const dropCooldownFinalStepSeconds = 0.02;
     const engine = new GameEngine(() => minRandom);
 
