@@ -2,10 +2,17 @@ import colors from "tailwindcss/colors";
 import { BOARD_HEIGHT, BOARD_WIDTH, DANGER_LINE, SPAWN_Y } from "../board";
 import { CELESTIAL_BODIES, CelestialLevel, celestialBodyRadius } from "../celestialBodies";
 
-type DrawableBody = Readonly<{ level: CelestialLevel; x: number; y: number }>;
+type DrawableBody = Readonly<{
+  level: CelestialLevel;
+  x: number;
+  y: number;
+  dangerLineExposureFor?: number;
+}>;
 
 const FULL_CIRCLE = Math.PI * 2;
 const GUIDE_DASH_LENGTH = 5;
+const DANGER_LINE_BLINK_INTERVAL_MS = 400;
+const DANGER_LINE_DIM_OPACITY = 0.35;
 const PREVIEW_OPACITY = 0.75;
 const COOLDOWN_PREVIEW_OPACITY = 0.25;
 
@@ -19,13 +26,20 @@ type BoardDrawingState = {
 
 export function drawBoard(ctx: CanvasRenderingContext2D, board: BoardDrawingState) {
   ctx.clearRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+  const isDanger = board.bodies.some(isBodyExposedToDangerLine);
+  const shouldDimDangerLine =
+    isDanger && Math.floor(performance.now() / DANGER_LINE_BLINK_INTERVAL_MS) % 2 === 0;
+
+  ctx.save();
+  ctx.globalAlpha = shouldDimDangerLine ? DANGER_LINE_DIM_OPACITY : 1;
   ctx.setLineDash([GUIDE_DASH_LENGTH, GUIDE_DASH_LENGTH]);
   ctx.strokeStyle = colors.rose[700];
-  ctx.lineWidth = 2;
+  ctx.lineWidth = isDanger ? 3 : 2;
   ctx.beginPath();
   ctx.moveTo(0, DANGER_LINE);
   ctx.lineTo(BOARD_WIDTH, DANGER_LINE);
   ctx.stroke();
+  ctx.restore();
   ctx.setLineDash([]);
 
   for (const body of board.bodies) drawCelestialBody(ctx, body);
@@ -33,6 +47,12 @@ export function drawBoard(ctx: CanvasRenderingContext2D, board: BoardDrawingStat
 
   const previewOpacity = board.canDrop ? PREVIEW_OPACITY : COOLDOWN_PREVIEW_OPACITY;
   drawCelestialBody(ctx, { level: board.dropLevel, x: board.dropX, y: SPAWN_Y }, previewOpacity);
+}
+
+function isBodyExposedToDangerLine(body: DrawableBody) {
+  return (
+    (body.dangerLineExposureFor ?? 0) > 0 && body.y + celestialBodyRadius(body.level) < DANGER_LINE
+  );
 }
 
 const bodyImages = new Map<string, HTMLImageElement>();
