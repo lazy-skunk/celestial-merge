@@ -1,15 +1,3 @@
-# ほしおとし
+# Celestial Merge
 
-同じほしをくっつけて、より大きなほしへ進化させていく物理パズルゲームです。
-
-## 遊ぶ
-
-公開版は次のURLから遊べます。
-
-<https://lazy-skunk.github.io/celestial-merge/>
-
-## 操作方法
-
-- クリックまたはタップしてほしを落とします。
-- 同じほしをくっつけると進化します。
-- いずれかのほしの全体が赤い点線よりも上にある状態で5秒たつと終了です。
+A physics puzzle game where you merge matching celestial bodies into larger ones.
