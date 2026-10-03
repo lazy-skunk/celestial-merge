@@ -35,57 +35,57 @@ export const CELESTIAL_BODIES: Record<CelestialLevel, CelestialBodyDefinition> =
   [CelestialLevel.Moon]: {
     image: import.meta.env.BASE_URL + "space04_moon.webp",
     imageBody: { cx: 208, cy: 204, radius: 195 },
-    name: "月",
+    name: "Moon",
   },
   [CelestialLevel.Mercury]: {
     image: import.meta.env.BASE_URL + "space02_mercury.webp",
     imageBody: { cx: 204, cy: 205, radius: 195 },
-    name: "水星",
+    name: "Mercury",
   },
   [CelestialLevel.Venus]: {
     image: import.meta.env.BASE_URL + "space03_venus.webp",
     imageBody: { cx: 206, cy: 205, radius: 195 },
-    name: "金星",
+    name: "Venus",
   },
   [CelestialLevel.Earth]: {
     image: import.meta.env.BASE_URL + "space04_earth.webp",
     imageBody: { cx: 212, cy: 204, radius: 195 },
-    name: "地球",
+    name: "Earth",
   },
   [CelestialLevel.Mars]: {
     image: import.meta.env.BASE_URL + "space05_mars.webp",
     imageBody: { cx: 207, cy: 202, radius: 195 },
-    name: "火星",
+    name: "Mars",
   },
   [CelestialLevel.Jupiter]: {
     image: import.meta.env.BASE_URL + "space06_jupitor.webp",
     imageBody: { cx: 210, cy: 202, radius: 195 },
-    name: "木星",
+    name: "Jupiter",
   },
   [CelestialLevel.Saturn]: {
     image: import.meta.env.BASE_URL + "space07_saturn.webp",
     imageBody: { cx: 366, cy: 233, radius: 195 },
-    name: "土星",
+    name: "Saturn",
   },
   [CelestialLevel.Uranus]: {
     image: import.meta.env.BASE_URL + "space07_uranus.webp",
     imageBody: { cx: 249, cy: 356, radius: 195 },
-    name: "天王星",
+    name: "Uranus",
   },
   [CelestialLevel.Neptune]: {
     image: import.meta.env.BASE_URL + "space08_neptune.webp",
     imageBody: { cx: 209, cy: 205, radius: 195 },
-    name: "海王星",
+    name: "Neptune",
   },
   [CelestialLevel.Pluto]: {
     image: import.meta.env.BASE_URL + "space09_pluto.webp",
     imageBody: { cx: 207, cy: 205, radius: 195 },
-    name: "冥王星",
+    name: "Pluto",
   },
   [CelestialLevel.Sun]: {
     image: import.meta.env.BASE_URL + "space01_sun.webp",
     imageBody: { cx: 289, cy: 271, radius: 245 },
-    name: "太陽",
+    name: "Sun",
   },
 };
 

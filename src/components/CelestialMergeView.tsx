@@ -32,9 +32,9 @@ export function CelestialMergeView({
   onReset,
 }: CelestialMergeViewProps) {
   const helpTextLines = [
-    "クリックまたはタップしてほしを落とします。",
-    "同じほしをくっつけると進化します。",
-    "いずれかのほしの全体が赤い点線よりも上にある状態で5秒たつと終了です。",
+    "Click or tap to drop a celestial body.",
+    "Merge matching celestial bodies to create the next one.",
+    "The game ends if any whole body stays above the red dashed line for 5 seconds.",
   ];
 
   return (
@@ -47,9 +47,9 @@ export function CelestialMergeView({
         style={{ maxWidth: "min(calc(100vw - 2rem), calc((100svh - 13rem) * 9 / 14))" }}
       >
         <header className="flex items-center justify-between gap-3">
-          <h1 className="text-xl font-bold text-slate-200">ほしおとし</h1>
+          <h1 className="text-xl font-bold text-slate-200">Celestial Merge</h1>
           <div className="ml-auto flex items-center gap-2 text-xs text-slate-300">
-            <span>次は</span>
+            <span>Next</span>
             <CelestialBodyPreview level={nextDropLevel} />
             <strong
               className="shrink-0 text-sm text-slate-100"
@@ -59,7 +59,7 @@ export function CelestialMergeView({
             </strong>
           </div>
           <div className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-right">
-            <span className="block text-xs text-slate-400">得点</span>
+            <span className="block text-xs text-slate-400">Score</span>
             <strong>{displayedScore}</strong>
           </div>
         </header>
@@ -76,17 +76,17 @@ export function CelestialMergeView({
           />
           {isGameOver && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-950/70">
-              <p>ゲームオーバー</p>
-              <strong className="text-3xl">{displayedScore} 点</strong>
+              <p>Game Over</p>
+              <strong className="text-3xl">{displayedScore} pts</strong>
               <button className="rounded bg-slate-300 px-3 py-2 text-slate-950" onClick={onReset}>
-                もう一度遊ぶ
+                Play Again
               </button>
             </div>
           )}
         </div>
 
         <div className="pt-2 text-xs text-slate-300">
-          <span className="mb-1 block text-slate-400">進化順</span>
+          <span className="mb-1 block text-slate-400">Merge Guide</span>
           <CelestialProgressionRow levels={CELESTIAL_PROGRESSION} />
         </div>
 
@@ -102,7 +102,7 @@ export function CelestialMergeView({
             className="shrink-0 rounded border border-slate-600 px-3 py-2 text-slate-200"
             onClick={onReset}
           >
-            はじめから
+            Restart
           </button>
         </footer>
       </section>
