@@ -30,15 +30,18 @@ export function CelestialMergeView({
 }: CelestialMergeViewProps) {
   const helpTextLines = [
     "クリックまたはタップして天体を落とします。",
-    "危険ライン上に一定時間残ると終了します。",
+    "天体全体が赤い点線より上に出ると終了判定が始まります。",
   ];
 
   return (
     <main
-      className="grid min-h-screen place-items-center bg-cover bg-center bg-no-repeat p-4"
+      className="grid h-svh place-items-center overflow-hidden bg-cover bg-center bg-no-repeat p-4"
       style={{ backgroundImage: `url(${import.meta.env.BASE_URL}bg_moon_getsumen.jpg)` }}
     >
-      <section className="w-full max-w-sm rounded-xl border border-slate-700 bg-slate-900 p-4">
+      <section
+        className="w-full rounded-xl border border-slate-700 bg-slate-900 p-4"
+        style={{ maxWidth: "min(calc(100vw - 2rem), calc((100svh - 13rem) * 9 / 14))" }}
+      >
         <header className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-slate-200">ほしおとし</h1>
           <div className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-right">
