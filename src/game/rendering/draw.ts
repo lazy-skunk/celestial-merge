@@ -43,10 +43,12 @@ export function drawBoard(ctx: CanvasRenderingContext2D, board: BoardDrawingStat
   ctx.restore();
   ctx.setLineDash([]);
 
+  if (!board.gameOver) {
+    drawDropGuide(ctx, board);
+  }
   for (const body of board.bodies) drawCelestialBody(ctx, body);
   if (board.gameOver) return;
 
-  drawDropGuide(ctx, board);
   const previewOpacity = board.canDrop ? PREVIEW_OPACITY : COOLDOWN_PREVIEW_OPACITY;
   drawCelestialBody(ctx, { level: board.dropLevel, x: board.dropX, y: SPAWN_Y }, previewOpacity);
 }
