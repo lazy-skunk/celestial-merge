@@ -7,6 +7,8 @@ const SILENT_GAIN = 0.001;
 const REVERB_DELAY_SECONDS = 1;
 const REVERB_FEEDBACK_GAIN = 0.5;
 const REVERB_WET_GAIN = 0.25;
+const PAN_LFO_FREQUENCY = 0.1;
+const PAN_LFO_DEPTH = 0.1;
 const DETUNED_NOTE_LAYERS = [
   { detuneCents: -5, gain: 0.33, pan: -0.5 },
   { detuneCents: 0, gain: 0.33, pan: 0 },
@@ -78,6 +80,8 @@ function connectWithOptionalStereoPan(
   source: AudioNode,
   destination: AudioNode,
   pan: number,
+  panStart: number,
+  panEnd: number,
 ) {
   if (!("createStereoPanner" in context)) {
     source.connect(destination);
@@ -85,10 +89,27 @@ function connectWithOptionalStereoPan(
   }
 
   const panner = context.createStereoPanner();
-  panner.pan.value = pan;
+  const panLfo = context.createOscillator();
+  const panDepth = context.createGain();
+
+  panner.pan.setValueAtTime(pan, panStart);
+  panLfo.frequency.setValueAtTime(PAN_LFO_FREQUENCY, panStart);
+  panDepth.gain.setValueAtTime(PAN_LFO_DEPTH, panStart);
+
+  panLfo.connect(panDepth);
+  panDepth.connect(panner.pan);
   source.connect(panner);
   panner.connect(destination);
-  return panner;
+  panLfo.start(panStart);
+  panLfo.stop(panEnd);
+
+  return {
+    disconnect: () => {
+      panLfo.disconnect();
+      panDepth.disconnect();
+      panner.disconnect();
+    },
+  };
 }
 
 function createReverbBus(context: BrowserAudioContext): ReverbBus {
@@ -133,7 +154,14 @@ function scheduleFloatingNote(
   DETUNED_NOTE_LAYERS.forEach(({ detuneCents, gain: layerGain, pan }) => {
     const oscillator = context.createOscillator();
     const gain = context.createGain();
-    const panner = connectWithOptionalStereoPan(context, gain, context.destination, pan);
+    const panner = connectWithOptionalStereoPan(
+      context,
+      gain,
+      context.destination,
+      pan,
+      noteStart,
+      noteEnd,
+    );
 
     oscillator.type = "sine";
     oscillator.frequency.setValueAtTime(frequency, noteStart);
