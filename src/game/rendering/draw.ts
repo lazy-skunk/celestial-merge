@@ -13,6 +13,7 @@ const FULL_CIRCLE = Math.PI * 2;
 const GUIDE_DASH_LENGTH = 5;
 const DANGER_LINE_BLINK_INTERVAL_MS = 400;
 const DANGER_LINE_DIM_OPACITY = 0.35;
+const DROP_GUIDE_OPACITY = 0.3;
 const PREVIEW_OPACITY = 0.75;
 const COOLDOWN_PREVIEW_OPACITY = 0.25;
 
@@ -45,6 +46,7 @@ export function drawBoard(ctx: CanvasRenderingContext2D, board: BoardDrawingStat
   for (const body of board.bodies) drawCelestialBody(ctx, body);
   if (board.gameOver) return;
 
+  drawDropGuide(ctx, board);
   const previewOpacity = board.canDrop ? PREVIEW_OPACITY : COOLDOWN_PREVIEW_OPACITY;
   drawCelestialBody(ctx, { level: board.dropLevel, x: board.dropX, y: SPAWN_Y }, previewOpacity);
 }
@@ -53,6 +55,22 @@ function isBodyExposedToDangerLine(body: DrawableBody) {
   return (
     (body.dangerLineExposureFor ?? 0) > 0 && body.y + celestialBodyRadius(body.level) < DANGER_LINE
   );
+}
+
+function drawDropGuide(ctx: CanvasRenderingContext2D, board: BoardDrawingState) {
+  const radius = celestialBodyRadius(board.dropLevel);
+
+  ctx.save();
+  ctx.globalAlpha = board.canDrop ? DROP_GUIDE_OPACITY : DROP_GUIDE_OPACITY / 2;
+  ctx.setLineDash([GUIDE_DASH_LENGTH, GUIDE_DASH_LENGTH]);
+  ctx.strokeStyle = colors.slate[200];
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(board.dropX, SPAWN_Y + radius);
+  ctx.lineTo(board.dropX, BOARD_HEIGHT);
+  ctx.stroke();
+  ctx.restore();
+  ctx.setLineDash([]);
 }
 
 const bodyImages = new Map<string, HTMLImageElement>();
