@@ -40,7 +40,7 @@ export function CelestialMergeView({
   return (
     <main
       className="grid h-svh place-items-center overflow-hidden bg-cover bg-center bg-no-repeat p-4"
-      style={{ backgroundImage: `url(${import.meta.env.BASE_URL}bg_moon_getsumen.jpg)` }}
+      style={{ backgroundImage: `url(${import.meta.env.BASE_URL}bg_moon_getsumen.webp)` }}
     >
       <section
         className="w-full rounded-xl border border-slate-700 bg-slate-900 p-4"
