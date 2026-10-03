@@ -1,10 +1,11 @@
 import { describe, expect, test } from "vite-plus/test";
-import { BOARD_WIDTH, SPAWN_Y } from "./board";
+import { BOARD_WIDTH, DANGER_LINE, SPAWN_Y } from "./board";
 import { celestialBodyRadius, CelestialLevel } from "./celestialBodies";
 import {
   canMergeCelestialBodies,
   clampDropPosition,
   createCelestialBody,
+  DROP_DANGER_LINE_PROTECTION_SECONDS,
   GAME_OVER_GRACE_SECONDS,
   mergeCelestialBodies,
   mergeScore,
@@ -45,6 +46,7 @@ describe("game rules", () => {
       level: CelestialLevel.Moon,
       x: expectedX,
       y: SPAWN_Y,
+      dangerLineProtectionFor: DROP_DANGER_LINE_PROTECTION_SECONDS,
     });
   });
 
@@ -146,6 +148,7 @@ describe("game rules", () => {
     const body = createCelestialBody(bodyOneId, CelestialLevel.Moon, bodyOneX);
     body.y = aboveDangerLineY;
     body.dangerLineExposureFor = GAME_OVER_GRACE_SECONDS - dangerExposureRemainingSeconds;
+    body.dangerLineProtectionFor = 0;
 
     // Act
     const isGameOver = updateDangerLineExposure(body, dangerExposureStepSeconds);
@@ -153,6 +156,56 @@ describe("game rules", () => {
     // Assert
     expect(isGameOver).toBe(true);
     expect(body.dangerLineExposureFor).toBeGreaterThan(GAME_OVER_GRACE_SECONDS);
+  });
+
+  test("does not track danger line exposure for a freshly dropped body", () => {
+    // Arrange
+    const bodyOneId = 1;
+    const bodyOneX = 100;
+    const elapsedSeconds = 0.02;
+    const body = createCelestialBody(bodyOneId, CelestialLevel.Moon, bodyOneX);
+
+    // Act
+    const isGameOver = updateDangerLineExposure(body, elapsedSeconds);
+
+    // Assert
+    expect(isGameOver).toBe(false);
+    expect(body.dangerLineExposureFor).toBe(0);
+    expect(body.dangerLineProtectionFor).toBeGreaterThan(0);
+  });
+
+  test("tracks danger line exposure after drop protection expires", () => {
+    // Arrange
+    const bodyOneId = 1;
+    const bodyOneX = 100;
+    const dangerExposureStepSeconds = 0.02;
+    const body = createCelestialBody(bodyOneId, CelestialLevel.Moon, bodyOneX);
+    body.dangerLineProtectionFor = 0;
+
+    // Act
+    const isGameOver = updateDangerLineExposure(body, dangerExposureStepSeconds);
+
+    // Assert
+    expect(isGameOver).toBe(false);
+    expect(body.dangerLineExposureFor).toBe(dangerExposureStepSeconds);
+  });
+
+  test("does not track danger line exposure until the whole body is above the line", () => {
+    // Arrange
+    const bodyOneId = 1;
+    const bodyOneX = 100;
+    const elapsedSeconds = 0.02;
+    const body = createCelestialBody(bodyOneId, CelestialLevel.Moon, bodyOneX);
+    const radius = celestialBodyRadius(body.level);
+    body.y = DANGER_LINE - radius / 2;
+    body.dangerLineProtectionFor = 0;
+
+    // Act
+    const isGameOver = updateDangerLineExposure(body, elapsedSeconds);
+
+    // Assert
+    expect(isGameOver).toBe(false);
+    expect(body.dangerLineExposureFor).toBe(0);
   });
 
   test("clears danger line exposure below the danger area", () => {

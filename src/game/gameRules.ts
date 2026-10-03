@@ -2,6 +2,7 @@ import { BOARD_WIDTH, DANGER_LINE, SPAWN_Y } from "./board";
 import { CelestialLevel, celestialBodyRadius } from "./celestialBodies";
 
 export const GAME_OVER_GRACE_SECONDS = 5;
+export const DROP_DANGER_LINE_PROTECTION_SECONDS = 1;
 const DROP_CANDIDATE_LEVEL_COUNT = 5;
 
 export type CelestialBody = {
@@ -12,6 +13,7 @@ export type CelestialBody = {
   vx: number;
   vy: number;
   dangerLineExposureFor: number;
+  dangerLineProtectionFor: number;
 };
 
 export type CelestialMergeResult = {
@@ -34,6 +36,7 @@ export function createCelestialBody(id: number, level: CelestialLevel, x: number
     vx: 0,
     vy: 0,
     dangerLineExposureFor: 0,
+    dangerLineProtectionFor: DROP_DANGER_LINE_PROTECTION_SECONDS,
   };
 }
 
@@ -63,6 +66,10 @@ export function mergeCelestialBodies(
             firstBody.dangerLineExposureFor,
             secondBody.dangerLineExposureFor,
           ),
+          dangerLineProtectionFor: Math.min(
+            firstBody.dangerLineProtectionFor,
+            secondBody.dangerLineProtectionFor,
+          ),
         };
 
   return {
@@ -78,9 +85,11 @@ export function canMergeCelestialBodies(firstBody: CelestialBody, secondBody: Ce
 
 export function updateDangerLineExposure(body: CelestialBody, dt: number) {
   const radius = celestialBodyRadius(body.level);
-  const isAboveDangerLine = body.y - radius < DANGER_LINE;
+  const isAboveDangerLine = body.y + radius < DANGER_LINE;
 
-  if (isAboveDangerLine) {
+  body.dangerLineProtectionFor = Math.max(0, body.dangerLineProtectionFor - dt);
+
+  if (body.dangerLineProtectionFor === 0 && isAboveDangerLine) {
     body.dangerLineExposureFor += dt;
   } else {
     body.dangerLineExposureFor = 0;

@@ -170,10 +170,12 @@ describe("GameEngine", () => {
       {
         ...createCelestialBody(bodyOneId, CelestialLevel.Moon, bodyOneX),
         dangerLineExposureFor: expiredDangerExposureSeconds,
+        dangerLineProtectionFor: 0,
       },
       {
         ...createCelestialBody(bodyTwoId, CelestialLevel.Mercury, bodyTwoX),
         dangerLineExposureFor: existingDangerExposureSeconds,
+        dangerLineProtectionFor: 0,
       },
       {
         ...createCelestialBody(bodyThreeId, CelestialLevel.Venus, bodyThreeX),
@@ -268,7 +270,12 @@ describe("GameEngine", () => {
     const gracePeriodStepsPerSecond = 100;
     const gracePeriodFinalStepSeconds = 0.03;
     vi.spyOn(simulation, "updateSimulation").mockReturnValue({
-      bodies: [createCelestialBody(bodyOneId, CelestialLevel.Moon, bodyOneX)],
+      bodies: [
+        {
+          ...createCelestialBody(bodyOneId, CelestialLevel.Moon, bodyOneX),
+          dangerLineProtectionFor: 0,
+        },
+      ],
       nextId: bodyTwoId,
       mergedLevels: [],
       scoreGained: noScoreGained,

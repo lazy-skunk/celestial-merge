@@ -14,6 +14,7 @@ function createTestBody(overrides: Partial<CelestialBody> = {}): CelestialBody {
     vx: 0,
     vy: 0,
     dangerLineExposureFor: 0,
+    dangerLineProtectionFor: 0,
     ...overrides,
   };
 }
@@ -188,6 +189,7 @@ describe("simulation", () => {
 
     // Assert
     expect(result.bodies[0].dangerLineExposureFor).toBe(dangerExposureLongerSeconds);
+    expect(result.bodies[0].dangerLineProtectionFor).toBe(0);
   });
 
   test("stops a body moving into the wall and floor", () => {
