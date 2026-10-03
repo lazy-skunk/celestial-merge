@@ -49,7 +49,7 @@ export function CelestialMergeView({
         <header className="flex items-center justify-between gap-3">
           <h1 className="text-xl font-bold text-slate-200">ほしおとし</h1>
           <div className="ml-auto flex items-center gap-2 text-xs text-slate-300">
-            <span>次のほし</span>
+            <span>次は</span>
             <CelestialBodyPreview level={nextDropLevel} />
             <strong
               className="shrink-0 text-sm text-slate-100"
