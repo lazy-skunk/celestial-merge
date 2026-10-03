@@ -4,10 +4,16 @@ const MILLISECONDS_PER_SECOND = 1000;
 const NOTE_SECONDS = 5;
 const BGM_GAIN = 0.5;
 const SILENT_GAIN = 0.001;
+const DETUNED_NOTE_LAYERS = [
+  { detuneCents: -5, gain: 0.33, pan: -0.5 },
+  { detuneCents: 0, gain: 0.33, pan: 0 },
+  { detuneCents: 5, gain: 0.33, pan: 0.5 },
+] as const;
 const NOTE_FREQUENCIES = {
   C4: 261.63,
   D4: 293.66,
   E4: 329.63,
+  F4: 349.23,
   G3: 196,
   A3: 220,
   B3: 246.94,
@@ -58,6 +64,60 @@ function createRandomMelodyFrequencies() {
   });
 }
 
+function connectWithOptionalStereoPan(
+  context: BrowserAudioContext,
+  source: AudioNode,
+  destination: AudioNode,
+  pan: number,
+) {
+  if (!("createStereoPanner" in context)) {
+    source.connect(destination);
+    return null;
+  }
+
+  const panner = context.createStereoPanner();
+  panner.pan.value = pan;
+  source.connect(panner);
+  panner.connect(destination);
+  return panner;
+}
+
+function scheduleFloatingNote(
+  context: BrowserAudioContext,
+  frequency: number,
+  noteStart: number,
+  activeGains: Set<GainNode>,
+) {
+  const noteEnd = noteStart + NOTE_SECONDS;
+  const notePeak = noteStart + NOTE_SECONDS / 2;
+
+  DETUNED_NOTE_LAYERS.forEach(({ detuneCents, gain: layerGain, pan }) => {
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const panner = connectWithOptionalStereoPan(context, gain, context.destination, pan);
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(frequency, noteStart);
+    oscillator.detune.setValueAtTime(detuneCents, noteStart);
+
+    gain.gain.setValueAtTime(SILENT_GAIN, noteStart);
+    gain.gain.linearRampToValueAtTime(BGM_GAIN * layerGain, notePeak);
+    gain.gain.exponentialRampToValueAtTime(SILENT_GAIN, noteEnd);
+
+    oscillator.connect(gain);
+    activeGains.add(gain);
+    oscillator.start(noteStart);
+    oscillator.stop(noteEnd);
+    oscillator.addEventListener("ended", () => {
+      oscillator.disconnect();
+      if (activeGains.delete(gain)) {
+        gain.disconnect();
+      }
+      panner?.disconnect();
+    });
+  });
+}
+
 export function createBgmPlayer({ getAudioContext }: AudioContextStore) {
   let bgmTimer: number | null = null;
   let isPlaying = false;
@@ -70,28 +130,7 @@ export function createBgmPlayer({ getAudioContext }: AudioContextStore) {
 
     melodyFrequencies.forEach((frequency, index) => {
       const noteStart = startTime + index * NOTE_SECONDS;
-      const noteEnd = noteStart + NOTE_SECONDS;
-      const notePeak = noteStart + NOTE_SECONDS / 2;
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
-
-      oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(frequency, noteStart);
-      gain.gain.setValueAtTime(SILENT_GAIN, noteStart);
-      gain.gain.linearRampToValueAtTime(BGM_GAIN, notePeak);
-      gain.gain.exponentialRampToValueAtTime(SILENT_GAIN, noteEnd);
-
-      oscillator.connect(gain);
-      gain.connect(context.destination);
-      activeGains.add(gain);
-      oscillator.start(noteStart);
-      oscillator.stop(noteEnd);
-      oscillator.addEventListener("ended", () => {
-        oscillator.disconnect();
-        if (activeGains.delete(gain)) {
-          gain.disconnect();
-        }
-      });
+      scheduleFloatingNote(context, frequency, noteStart, activeGains);
     });
   };
 
