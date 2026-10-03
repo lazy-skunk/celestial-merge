@@ -4,6 +4,9 @@ const MILLISECONDS_PER_SECOND = 1000;
 const NOTE_SECONDS = 5;
 const BGM_GAIN = 0.5;
 const SILENT_GAIN = 0.001;
+const REVERB_DELAY_SECONDS = 1;
+const REVERB_FEEDBACK_GAIN = 0.5;
+const REVERB_WET_GAIN = 0.25;
 const DETUNED_NOTE_LAYERS = [
   { detuneCents: -5, gain: 0.33, pan: -0.5 },
   { detuneCents: 0, gain: 0.33, pan: 0 },
@@ -53,6 +56,12 @@ const MELODY_FREQUENCIES = [...frogfucius_suite_18, ...moleville_blues, ...monst
 const LOOP_SECONDS = (MELODY_FREQUENCIES.length + RANDOM_MELODY_NOTE_COUNT) * NOTE_SECONDS;
 const NOTE_FREQUENCY_VALUES = Object.values(NOTE_FREQUENCIES);
 
+type ReverbBus = {
+  context: BrowserAudioContext;
+  input: GainNode;
+  disconnect: () => void;
+};
+
 function randomFrequency() {
   const index = Math.floor(Math.random() * NOTE_FREQUENCY_VALUES.length);
   return NOTE_FREQUENCY_VALUES[index];
@@ -82,11 +91,41 @@ function connectWithOptionalStereoPan(
   return panner;
 }
 
+function createReverbBus(context: BrowserAudioContext): ReverbBus {
+  const input = context.createGain();
+  const delay = context.createDelay();
+  const feedback = context.createGain();
+  const wet = context.createGain();
+
+  input.gain.value = 1;
+  delay.delayTime.value = REVERB_DELAY_SECONDS;
+  feedback.gain.value = REVERB_FEEDBACK_GAIN;
+  wet.gain.value = REVERB_WET_GAIN;
+
+  input.connect(delay);
+  delay.connect(wet);
+  delay.connect(feedback);
+  feedback.connect(delay);
+  wet.connect(context.destination);
+
+  return {
+    context,
+    input,
+    disconnect: () => {
+      input.disconnect();
+      delay.disconnect();
+      feedback.disconnect();
+      wet.disconnect();
+    },
+  };
+}
+
 function scheduleFloatingNote(
   context: BrowserAudioContext,
   frequency: number,
   noteStart: number,
   activeGains: Set<GainNode>,
+  reverbInput: AudioNode,
 ) {
   const noteEnd = noteStart + NOTE_SECONDS;
   const notePeak = noteStart + NOTE_SECONDS / 2;
@@ -105,6 +144,7 @@ function scheduleFloatingNote(
     gain.gain.exponentialRampToValueAtTime(SILENT_GAIN, noteEnd);
 
     oscillator.connect(gain);
+    gain.connect(reverbInput);
     activeGains.add(gain);
     oscillator.start(noteStart);
     oscillator.stop(noteEnd);
@@ -121,16 +161,25 @@ function scheduleFloatingNote(
 export function createBgmPlayer({ getAudioContext }: AudioContextStore) {
   let bgmTimer: number | null = null;
   let isPlaying = false;
+  let reverbBus: ReverbBus | null = null;
   const activeGains = new Set<GainNode>();
+
+  const getReverbBus = (context: BrowserAudioContext) => {
+    if (reverbBus?.context === context) return reverbBus;
+    reverbBus?.disconnect();
+    reverbBus = createReverbBus(context);
+    return reverbBus;
+  };
 
   const scheduleBgmLoop = (context: BrowserAudioContext, startTime: number) => {
     if (!isPlaying) return;
 
     const melodyFrequencies = [...MELODY_FREQUENCIES, ...createRandomMelodyFrequencies()];
+    const currentReverbBus = getReverbBus(context);
 
     melodyFrequencies.forEach((frequency, index) => {
       const noteStart = startTime + index * NOTE_SECONDS;
-      scheduleFloatingNote(context, frequency, noteStart, activeGains);
+      scheduleFloatingNote(context, frequency, noteStart, activeGains, currentReverbBus.input);
     });
   };
 
@@ -160,6 +209,8 @@ export function createBgmPlayer({ getAudioContext }: AudioContextStore) {
       gain.disconnect();
     });
     activeGains.clear();
+    reverbBus?.disconnect();
+    reverbBus = null;
   };
 
   return { start, stop };
