@@ -1,5 +1,9 @@
 import { CelestialMerge } from "./components/CelestialMerge";
 
 export function App() {
-  return <CelestialMerge />;
+  return (
+    <main>
+      <CelestialMerge />
+    </main>
+  );
 }

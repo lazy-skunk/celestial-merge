@@ -38,7 +38,7 @@ export function CelestialMergeView({
   ];
 
   return (
-    <main
+    <div
       className="grid h-svh place-items-center overflow-hidden bg-cover bg-center bg-no-repeat p-4"
       style={{ backgroundImage: `url(${import.meta.env.BASE_URL}bg_moon_getsumen.webp)` }}
     >
@@ -106,7 +106,7 @@ export function CelestialMergeView({
           </button>
         </footer>
       </section>
-    </main>
+    </div>
   );
 }
 
