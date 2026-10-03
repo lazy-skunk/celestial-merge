@@ -12,7 +12,7 @@ import { updateSimulation } from "./physics/simulation";
 const TIME_STEP = 1 / 120;
 const MAX_ELAPSED_SECONDS = 0.05;
 
-const DROP_COOLDOWN_SECONDS = 0.33;
+const DROP_COOLDOWN_SECONDS = 0.2;
 
 export type GameSnapshot = Readonly<{
   bodies: readonly Readonly<CelestialBody>[];
