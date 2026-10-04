@@ -8,9 +8,6 @@ import { drawCelestialBody } from "../game/rendering/draw";
 import { useEffect, useRef, type RefObject } from "react";
 
 const NEXT_BODY_PREVIEW_SIZE = 36;
-const NEXT_BODY_NAME_WIDTH = `${Math.max(
-  ...CELESTIAL_PROGRESSION.map((level) => CELESTIAL_BODIES[level].name.length),
-)}em`;
 
 type CelestialMergeViewProps = {
   canvasRef: RefObject<HTMLCanvasElement | null>;
@@ -51,12 +48,6 @@ export function CelestialMergeView({
           <div className="ml-auto flex items-center gap-2 text-xs text-slate-300">
             <span>Next</span>
             <CelestialBodyPreview level={nextDropLevel} />
-            <strong
-              className="shrink-0 text-sm text-slate-100"
-              style={{ width: NEXT_BODY_NAME_WIDTH }}
-            >
-              {CELESTIAL_BODIES[nextDropLevel].name}
-            </strong>
           </div>
           <div className="ml-auto rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-right">
             <span className="block text-xs text-slate-400">Score</span>
@@ -110,12 +101,7 @@ function CelestialProgressionRow({ levels }: { levels: CelestialLevel[] }) {
       {levels.map((level, index) => (
         <div key={level} className="flex items-start gap-1">
           {index > 0 && <span className="pt-1 text-[10px] text-slate-500">→</span>}
-          <div className="grid justify-items-center gap-0.5">
-            <CelestialBodyPreview level={level} size={20} />
-            <span className="whitespace-nowrap text-center text-[8px] leading-none">
-              {CELESTIAL_BODIES[level].name}
-            </span>
-          </div>
+          <CelestialBodyPreview level={level} size={20} />
         </div>
       ))}
     </div>
