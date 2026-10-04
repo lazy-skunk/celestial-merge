@@ -6,14 +6,23 @@ import { createRef } from "react";
 import { CelestialMerge } from "./CelestialMerge";
 import { CelestialMergeView } from "./CelestialMergeView";
 
+const gameAudio = vi.hoisted(() => ({
+  playMerge: vi.fn(),
+  startBgm: vi.fn(),
+  stopBgm: vi.fn(),
+  unlock: vi.fn(),
+}));
+
 vi.mock("../game/rendering/draw", () => ({
   drawBoard: vi.fn(),
   drawCelestialBody: vi.fn(),
 }));
+vi.mock("../game/gameAudio", () => ({ createGameAudio: () => gameAudio }));
 
 let cancelFrame: ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
+  vi.clearAllMocks();
   vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
     setTransform: vi.fn(),
     translate: vi.fn(),
@@ -49,6 +58,23 @@ describe("CelestialMerge", () => {
     expect(cancelFrame).toHaveBeenCalledExactlyOnceWith(1);
   });
 
+  test("stops BGM when the page moves to the background", () => {
+    render(<CelestialMerge />);
+    vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
+
+    fireEvent(document, new Event("visibilitychange"));
+
+    expect(gameAudio.stopBgm).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  test("stops BGM when the page is hidden", () => {
+    render(<CelestialMerge />);
+
+    fireEvent(window, new Event("pagehide"));
+
+    expect(gameAudio.stopBgm).toHaveBeenCalledExactlyOnceWith();
+  });
+
   test("drops at the release position instead of the press position", () => {
     // Arrange
     const onDropXChange = vi.fn();
@@ -68,17 +94,25 @@ describe("CelestialMerge", () => {
     if (!canvas) throw new Error("Expected the game canvas to be rendered");
 
     // Act
+    fireEvent.pointerDown(canvas, { clientX: 20 });
+
+    // Assert
+    expect(onDropXChange).toHaveBeenCalledExactlyOnceWith(20);
+    expect(onDrop).not.toHaveBeenCalled();
+
+    // Act
     fireEvent.pointerMove(canvas, { clientX: 30 });
 
     // Assert
-    expect(onDropXChange).toHaveBeenCalledExactlyOnceWith(30);
+    expect(onDropXChange).toHaveBeenCalledTimes(2);
+    expect(onDropXChange).toHaveBeenLastCalledWith(30);
     expect(onDrop).not.toHaveBeenCalled();
 
     // Act
     fireEvent.pointerUp(canvas, { clientX: 40 });
 
     // Assert
-    expect(onDropXChange).toHaveBeenCalledTimes(2);
+    expect(onDropXChange).toHaveBeenCalledTimes(3);
     expect(onDropXChange).toHaveBeenLastCalledWith(40);
     expect(onDrop).toHaveBeenCalledExactlyOnceWith();
   });

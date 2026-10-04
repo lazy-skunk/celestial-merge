@@ -62,10 +62,19 @@ export function CelestialMerge() {
     window.addEventListener("resize", resizeCanvas);
 
     const stopGameLoop = startGameLoop(ctx, engine, syncViewState);
+    const stopBgm = () => gameAudio.stopBgm();
+    const stopBgmWhenHidden = () => {
+      if (document.visibilityState === "hidden") stopBgm();
+    };
+
+    document.addEventListener("visibilitychange", stopBgmWhenHidden);
+    window.addEventListener("pagehide", stopBgm);
 
     return () => {
       stopGameLoop();
       gameAudio.stopBgm();
+      document.removeEventListener("visibilitychange", stopBgmWhenHidden);
+      window.removeEventListener("pagehide", stopBgm);
       window.removeEventListener("resize", resizeCanvas);
     };
   }, [engine, gameAudio, syncViewState]);
