@@ -90,7 +90,7 @@ export function CelestialMergeView({
           <CelestialProgressionRow levels={CELESTIAL_PROGRESSION} />
         </div>
 
-        <footer className="flex items-center justify-between gap-3 pt-3 text-xs text-slate-400">
+        <footer className="pt-3 text-xs text-slate-400">
           <span>
             {helpTextLines.map((line) => (
               <span key={line} className="block">
@@ -98,12 +98,6 @@ export function CelestialMergeView({
               </span>
             ))}
           </span>
-          <button
-            className="shrink-0 rounded border border-slate-600 px-3 py-2 text-slate-200"
-            onClick={onReset}
-          >
-            Restart
-          </button>
         </footer>
       </section>
     </div>
