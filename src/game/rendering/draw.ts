@@ -6,6 +6,7 @@ type DrawableBody = Readonly<{
   level: CelestialLevel;
   x: number;
   y: number;
+  rotation?: number;
   dangerLineExposureFor?: number;
 }>;
 
@@ -99,10 +100,12 @@ export function drawCelestialBody(ctx: CanvasRenderingContext2D, body: DrawableB
     // Align the spherical surface with the collision circle while preserving rings and glow.
     const { cx, cy, radius: imageRadius } = definition.imageBody;
     const scale = radius / imageRadius;
+    ctx.translate(x, y);
+    ctx.rotate(body.rotation ?? 0);
     ctx.drawImage(
       image,
-      x - cx * scale,
-      y - cy * scale,
+      -cx * scale,
+      -cy * scale,
       image.naturalWidth * scale,
       image.naturalHeight * scale,
     );

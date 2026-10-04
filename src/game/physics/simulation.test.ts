@@ -13,6 +13,7 @@ function createTestBody(overrides: Partial<CelestialBody> = {}): CelestialBody {
     y: 200,
     vx: 0,
     vy: 0,
+    rotation: 0,
     dangerLineExposureFor: 0,
     dangerLineProtectionFor: 0,
     ...overrides,
@@ -45,6 +46,20 @@ describe("simulation", () => {
     // Assert
     expect(result.bodies[0].y).toBeGreaterThan(defaultBodyY);
     expect(result.bodies[0].vy).toBeGreaterThan(noVelocity);
+  });
+
+  test.each([
+    [120, 1],
+    [-120, -1],
+  ])("rotates a horizontally moving body at speed %s", (vx, direction) => {
+    const radius = celestialBodyRadius(CelestialLevel.Moon);
+    const elapsedSeconds = 0.05;
+    const body = createTestBody({ vx });
+
+    const result = updateSimulation([body], 2, elapsedSeconds);
+
+    expect(result.bodies[0].rotation).toBeCloseTo((vx * elapsedSeconds) / radius);
+    expect(Math.sign(result.bodies[0].rotation)).toBe(direction);
   });
 
   test("merges two matching bodies and awards score", () => {

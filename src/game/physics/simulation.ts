@@ -142,7 +142,9 @@ function measureBodyPair(firstBody: CelestialBody, secondBody: CelestialBody): B
 
 function moveBodies(bodies: CelestialBody[], dt: number) {
   for (const body of bodies) {
+    const radius = celestialBodyRadius(body.level);
     body.vy += GRAVITY * dt;
+    body.rotation += (body.vx * dt) / radius;
     body.x += body.vx * dt;
     body.y += body.vy * dt;
     constrainToBoard(body);

@@ -20,27 +20,34 @@ test.each([
   );
   const drawImage = vi.fn();
   const clip = vi.fn();
+  const translate = vi.fn();
+  const rotate = vi.fn();
   const ctx = {
     save: vi.fn(),
     restore: vi.fn(),
     beginPath: vi.fn(),
     arc: vi.fn(),
     clip,
+    translate,
+    rotate,
     drawImage,
   } as unknown as CanvasRenderingContext2D;
   const x = 140;
   const y = 230;
-
-  drawCelestialBody(ctx, { level, x, y });
-
   const circle = CELESTIAL_BODIES[level].imageBody!;
+  const rotation = Math.PI / 3;
+
+  drawCelestialBody(ctx, { level, x, y, rotation });
+
   const [, left, top, drawnWidth, drawnHeight] = drawImage.mock.calls[0];
   const scaleX = drawnWidth / width;
   const scaleY = drawnHeight / height;
   const radius = celestialBodyRadius(level);
-  expect(left + circle.cx * scaleX).toBeCloseTo(x);
-  expect(top + circle.cy * scaleY).toBeCloseTo(y);
+  expect(left + circle.cx * scaleX).toBeCloseTo(0);
+  expect(top + circle.cy * scaleY).toBeCloseTo(0);
   expect(circle.radius * scaleX).toBeCloseTo(radius);
   expect(circle.radius * scaleY).toBeCloseTo(radius);
   expect(clip).not.toHaveBeenCalled();
+  expect(translate).toHaveBeenLastCalledWith(x, y);
+  expect(rotate).toHaveBeenLastCalledWith(rotation);
 });

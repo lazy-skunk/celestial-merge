@@ -12,6 +12,7 @@ export type CelestialBody = {
   y: number;
   vx: number;
   vy: number;
+  rotation: number;
   dangerLineExposureFor: number;
   dangerLineProtectionFor: number;
 };
@@ -35,6 +36,7 @@ export function createCelestialBody(id: number, level: CelestialLevel, x: number
     y: SPAWN_Y,
     vx: 0,
     vy: 0,
+    rotation: 0,
     dangerLineExposureFor: 0,
     dangerLineProtectionFor: DROP_DANGER_LINE_PROTECTION_SECONDS,
   };
@@ -62,6 +64,7 @@ export function mergeCelestialBodies(
           y: (firstBody.y + secondBody.y) / 2,
           vx: (firstBody.vx + secondBody.vx) / 2,
           vy: (firstBody.vy + secondBody.vy) / 2,
+          rotation: (firstBody.rotation + secondBody.rotation) / 2,
           dangerLineExposureFor: Math.max(
             firstBody.dangerLineExposureFor,
             secondBody.dangerLineExposureFor,
