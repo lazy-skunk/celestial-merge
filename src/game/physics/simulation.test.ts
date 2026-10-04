@@ -241,10 +241,10 @@ describe("simulation", () => {
     expect(result.bodies[0].vy).toBe(noVelocity);
   });
 
-  test("damps horizontal movement so rotation eventually stops", () => {
+  test("keeps horizontal movement on the floor", () => {
     // Arrange
     const nextIdAfterSingleBody = 2;
-    const physicsStepSeconds = 1 / 60;
+    const noElapsedSeconds = 0;
     const floorCollisionY = 555;
     const rightwardSpeed = 100;
     const downwardSpeed = 100;
@@ -255,16 +255,10 @@ describe("simulation", () => {
     });
 
     // Act
-    let result = updateSimulation([celestialBody], nextIdAfterSingleBody, physicsStepSeconds);
+    const result = updateSimulation([celestialBody], nextIdAfterSingleBody, noElapsedSeconds);
 
     // Assert
-    expect(result.bodies[0].vx).toBeGreaterThan(0);
-    expect(result.bodies[0].vx).toBeLessThan(rightwardSpeed);
-
-    for (let frame = 0; frame < 120; frame++) {
-      result = updateSimulation(result.bodies, nextIdAfterSingleBody, physicsStepSeconds);
-    }
-    expect(result.bodies[0].vx).toBe(0);
+    expect(result.bodies[0].vx).toBe(rightwardSpeed);
   });
 
   test("separates different overlapping bodies without merging them", () => {

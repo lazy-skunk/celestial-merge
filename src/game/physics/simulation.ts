@@ -4,10 +4,6 @@ import type { CelestialBody } from "../gameRules";
 import { canMergeCelestialBodies, mergeCelestialBodies } from "../gameRules";
 
 const GRAVITY = 500;
-// This is intentionally game-feel damping rather than a full angular-friction model.
-// It prevents small horizontal collision impulses from making bodies spin indefinitely.
-const HORIZONTAL_DAMPING_PER_SECOND = 6;
-const HORIZONTAL_STOP_SPEED = 1;
 const COLLISION_SOLVER_ITERATIONS = 16;
 const CONTACT_TOLERANCE = 0.001;
 
@@ -152,8 +148,6 @@ function moveBodies(bodies: CelestialBody[], dt: number) {
     body.vy += GRAVITY * dt;
     body.x += body.vx * dt;
     body.y += body.vy * dt;
-    body.vx *= Math.exp(-HORIZONTAL_DAMPING_PER_SECOND * dt);
-    if (Math.abs(body.vx) < HORIZONTAL_STOP_SPEED) body.vx = 0;
     constrainToBoard(body);
   }
 }
