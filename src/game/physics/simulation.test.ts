@@ -62,6 +62,16 @@ describe("simulation", () => {
     expect(Math.sign(result.bodies[0].rotation)).toBe(direction);
   });
 
+  test("does not rotate when a wall prevents horizontal movement", () => {
+    const radius = celestialBodyRadius(CelestialLevel.Moon);
+    const body = createTestBody({ x: radius, vx: -120 });
+
+    const result = updateSimulation([body], 2, 0.05);
+
+    expect(result.bodies[0].x).toBe(radius);
+    expect(result.bodies[0].rotation).toBe(0);
+  });
+
   test("merges two matching bodies and awards score", () => {
     // Arrange
     const bodyTwoId = 2;
@@ -231,10 +241,10 @@ describe("simulation", () => {
     expect(result.bodies[0].vy).toBe(noVelocity);
   });
 
-  test("keeps horizontal movement on the floor", () => {
+  test("damps horizontal movement so rotation eventually stops", () => {
     // Arrange
     const nextIdAfterSingleBody = 2;
-    const noElapsedSeconds = 0;
+    const physicsStepSeconds = 1 / 60;
     const floorCollisionY = 555;
     const rightwardSpeed = 100;
     const downwardSpeed = 100;
@@ -245,10 +255,16 @@ describe("simulation", () => {
     });
 
     // Act
-    const result = updateSimulation([celestialBody], nextIdAfterSingleBody, noElapsedSeconds);
+    let result = updateSimulation([celestialBody], nextIdAfterSingleBody, physicsStepSeconds);
 
     // Assert
-    expect(result.bodies[0].vx).toBe(rightwardSpeed);
+    expect(result.bodies[0].vx).toBeGreaterThan(0);
+    expect(result.bodies[0].vx).toBeLessThan(rightwardSpeed);
+
+    for (let frame = 0; frame < 120; frame++) {
+      result = updateSimulation(result.bodies, nextIdAfterSingleBody, physicsStepSeconds);
+    }
+    expect(result.bodies[0].vx).toBe(0);
   });
 
   test("separates different overlapping bodies without merging them", () => {

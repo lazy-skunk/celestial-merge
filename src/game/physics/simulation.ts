@@ -4,6 +4,10 @@ import type { CelestialBody } from "../gameRules";
 import { canMergeCelestialBodies, mergeCelestialBodies } from "../gameRules";
 
 const GRAVITY = 500;
+// This is intentionally game-feel damping rather than a full angular-friction model.
+// It prevents small horizontal collision impulses from making bodies spin indefinitely.
+const HORIZONTAL_DAMPING_PER_SECOND = 6;
+const HORIZONTAL_STOP_SPEED = 1;
 const COLLISION_SOLVER_ITERATIONS = 16;
 const CONTACT_TOLERANCE = 0.001;
 
@@ -41,9 +45,12 @@ export function updateSimulation(
   dt: number,
 ): SimulationUpdateResult {
   const updatedBodies = bodies.map((body) => ({ ...body }));
+  const previousXById = new Map(updatedBodies.map((body) => [body.id, body.x]));
   moveBodies(updatedBodies, dt);
 
-  return resolveCollisions(updatedBodies, nextId);
+  const result = resolveCollisions(updatedBodies, nextId);
+  updateBodyRotations(result.bodies, previousXById);
+  return result;
 }
 
 // Merge once per update, then resolve positions including newly created bodies.
@@ -142,12 +149,20 @@ function measureBodyPair(firstBody: CelestialBody, secondBody: CelestialBody): B
 
 function moveBodies(bodies: CelestialBody[], dt: number) {
   for (const body of bodies) {
-    const radius = celestialBodyRadius(body.level);
     body.vy += GRAVITY * dt;
-    body.rotation += (body.vx * dt) / radius;
     body.x += body.vx * dt;
     body.y += body.vy * dt;
+    body.vx *= Math.exp(-HORIZONTAL_DAMPING_PER_SECOND * dt);
+    if (Math.abs(body.vx) < HORIZONTAL_STOP_SPEED) body.vx = 0;
     constrainToBoard(body);
+  }
+}
+
+function updateBodyRotations(bodies: CelestialBody[], previousXById: ReadonlyMap<number, number>) {
+  for (const body of bodies) {
+    const previousX = previousXById.get(body.id);
+    if (previousX === undefined) continue;
+    body.rotation += (body.x - previousX) / celestialBodyRadius(body.level);
   }
 }
 
