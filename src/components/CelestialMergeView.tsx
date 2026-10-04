@@ -59,6 +59,7 @@ export function CelestialMergeView({
           <canvas
             ref={canvasRef}
             className="block w-full touch-none"
+            onPointerDown={(event) => onDropXChange(event.clientX)}
             onPointerMove={(event) => onDropXChange(event.clientX)}
             onPointerUp={(event) => {
               onDropXChange(event.clientX);
