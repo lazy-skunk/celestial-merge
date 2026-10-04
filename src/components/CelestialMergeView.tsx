@@ -5,7 +5,7 @@ import {
   celestialBodyRadius,
 } from "../game/celestialBodies";
 import { drawCelestialBody } from "../game/rendering/draw";
-import { Fragment, useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
 const NEXT_BODY_PREVIEW_SIZE = 36;
 const NEXT_BODY_NAME_WIDTH = `${Math.max(
@@ -46,7 +46,7 @@ export function CelestialMergeView({
         className="w-full rounded-xl border border-slate-700 bg-slate-900 p-4"
         style={{ maxWidth: "min(calc(100vw - 2rem), calc((100svh - 13rem) * 9 / 14))" }}
       >
-        <header className="flex items-center justify-between gap-3">
+        <header className="flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-bold text-slate-200">Celestial Merge</h1>
           <div className="ml-auto flex items-center gap-2 text-xs text-slate-300">
             <span>Next</span>
@@ -58,7 +58,7 @@ export function CelestialMergeView({
               {CELESTIAL_BODIES[nextDropLevel].name}
             </strong>
           </div>
-          <div className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-right">
+          <div className="ml-auto rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-right">
             <span className="block text-xs text-slate-400">Score</span>
             <strong>{displayedScore}</strong>
           </div>
@@ -112,17 +112,17 @@ export function CelestialMergeView({
 
 function CelestialProgressionRow({ levels }: { levels: CelestialLevel[] }) {
   return (
-    <div className="flex items-start justify-between gap-1">
+    <div className="flex flex-wrap items-start justify-center gap-x-1 gap-y-2">
       {levels.map((level, index) => (
-        <Fragment key={level}>
+        <div key={level} className="flex items-start gap-1">
           {index > 0 && <span className="pt-1 text-[10px] text-slate-500">→</span>}
-          <div className="grid w-6 justify-items-center gap-0.5">
+          <div className="grid justify-items-center gap-0.5">
             <CelestialBodyPreview level={level} size={20} />
             <span className="whitespace-nowrap text-center text-[8px] leading-none">
               {CELESTIAL_BODIES[level].name}
             </span>
           </div>
-        </Fragment>
+        </div>
       ))}
     </div>
   );
