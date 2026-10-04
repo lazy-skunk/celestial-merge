@@ -10,9 +10,9 @@ const REVERB_WET_GAIN = 0.25;
 const PAN_LFO_FREQUENCY = 0.1;
 const PAN_LFO_DEPTH = 0.1;
 const DETUNED_NOTE_LAYERS = [
-  { detuneCents: -5, gain: 0.33, pan: -0.5 },
+  { detuneCents: -1, gain: 0.33, pan: -0.5 },
   { detuneCents: 0, gain: 0.33, pan: 0 },
-  { detuneCents: 5, gain: 0.33, pan: 0.5 },
+  { detuneCents: 1, gain: 0.33, pan: 0.5 },
 ] as const;
 const NOTE_FREQUENCIES = {
   C4: 261.63,
