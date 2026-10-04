@@ -7,13 +7,6 @@ const SILENT_GAIN = 0.001;
 const REVERB_DELAY_SECONDS = 1;
 const REVERB_FEEDBACK_GAIN = 0.5;
 const REVERB_WET_GAIN = 0.25;
-const PAN_LFO_FREQUENCY = 0.1;
-const PAN_LFO_DEPTH = 0.1;
-const DETUNED_NOTE_LAYERS = [
-  { detuneCents: -1, gain: 0.33, pan: -0.5 },
-  { detuneCents: 0, gain: 0.33, pan: 0 },
-  { detuneCents: 1, gain: 0.33, pan: 0.5 },
-] as const;
 const NOTE_FREQUENCIES = {
   C4: 261.63,
   D4: 293.66,
@@ -75,43 +68,6 @@ function createRandomMelodyFrequencies() {
   });
 }
 
-function connectWithOptionalStereoPan(
-  context: BrowserAudioContext,
-  source: AudioNode,
-  destination: AudioNode,
-  pan: number,
-  panStart: number,
-  panEnd: number,
-) {
-  if (!("createStereoPanner" in context)) {
-    source.connect(destination);
-    return null;
-  }
-
-  const panner = context.createStereoPanner();
-  const panLfo = context.createOscillator();
-  const panDepth = context.createGain();
-
-  panner.pan.setValueAtTime(pan, panStart);
-  panLfo.frequency.setValueAtTime(PAN_LFO_FREQUENCY, panStart);
-  panDepth.gain.setValueAtTime(PAN_LFO_DEPTH, panStart);
-
-  panLfo.connect(panDepth);
-  panDepth.connect(panner.pan);
-  source.connect(panner);
-  panner.connect(destination);
-  panLfo.start(panStart);
-  panLfo.stop(panEnd);
-
-  return {
-    disconnect: () => {
-      panLfo.disconnect();
-      panDepth.disconnect();
-      panner.disconnect();
-    },
-  };
-}
-
 function createReverbBus(context: BrowserAudioContext): ReverbBus {
   const input = context.createGain();
   const delay = context.createDelay();
@@ -151,38 +107,27 @@ function scheduleFloatingNote(
   const noteEnd = noteStart + NOTE_SECONDS;
   const notePeak = noteStart + NOTE_SECONDS / 2;
 
-  DETUNED_NOTE_LAYERS.forEach(({ detuneCents, gain: layerGain, pan }) => {
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    const panner = connectWithOptionalStereoPan(
-      context,
-      gain,
-      context.destination,
-      pan,
-      noteStart,
-      noteEnd,
-    );
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
 
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(frequency, noteStart);
-    oscillator.detune.setValueAtTime(detuneCents, noteStart);
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(frequency, noteStart);
 
-    gain.gain.setValueAtTime(SILENT_GAIN, noteStart);
-    gain.gain.linearRampToValueAtTime(BGM_GAIN * layerGain, notePeak);
-    gain.gain.exponentialRampToValueAtTime(SILENT_GAIN, noteEnd);
+  gain.gain.setValueAtTime(SILENT_GAIN, noteStart);
+  gain.gain.linearRampToValueAtTime(BGM_GAIN, notePeak);
+  gain.gain.exponentialRampToValueAtTime(SILENT_GAIN, noteEnd);
 
-    oscillator.connect(gain);
-    gain.connect(reverbInput);
-    activeGains.add(gain);
-    oscillator.start(noteStart);
-    oscillator.stop(noteEnd);
-    oscillator.addEventListener("ended", () => {
-      oscillator.disconnect();
-      if (activeGains.delete(gain)) {
-        gain.disconnect();
-      }
-      panner?.disconnect();
-    });
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+  gain.connect(reverbInput);
+  activeGains.add(gain);
+  oscillator.start(noteStart);
+  oscillator.stop(noteEnd);
+  oscillator.addEventListener("ended", () => {
+    oscillator.disconnect();
+    if (activeGains.delete(gain)) {
+      gain.disconnect();
+    }
   });
 }
 
