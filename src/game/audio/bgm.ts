@@ -2,7 +2,7 @@ import type { AudioContextStore, BrowserAudioContext } from "./audioContext";
 
 const MILLISECONDS_PER_SECOND = 1000;
 const NOTE_SECONDS = 5;
-const BGM_GAIN = 0.5;
+const BGM_GAIN = 0.33;
 const SILENT_GAIN = 0.001;
 const REVERB_DELAY_SECONDS = 1;
 const REVERB_FEEDBACK_GAIN = 0.5;

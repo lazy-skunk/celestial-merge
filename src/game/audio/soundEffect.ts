@@ -4,7 +4,7 @@ import type { CelestialLevel } from "../celestialBodies";
 const MIN_FREQUENCY_HZ = 440;
 const MAX_FREQUENCY_HZ = 880;
 const POP_DURATION_SECONDS = 0.1;
-const SOUND_EFFECT_GAIN = 0.5;
+const SOUND_EFFECT_GAIN = 0.33;
 const SILENT_GAIN = 0.001;
 
 type SoundEffectOptions = Readonly<{
