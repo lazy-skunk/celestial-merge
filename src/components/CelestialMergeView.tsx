@@ -7,7 +7,7 @@ import {
 import { drawCelestialBody } from "../game/rendering/draw";
 import { useEffect, useRef, type RefObject } from "react";
 
-const NEXT_BODY_PREVIEW_SIZE = 36;
+const NEXT_BODY_PREVIEW_SIZE = 24;
 
 type CelestialMergeViewProps = {
   canvasRef: RefObject<HTMLCanvasElement | null>;
@@ -43,15 +43,15 @@ export function CelestialMergeView({
         className="w-full rounded-xl border border-slate-700 bg-slate-900 p-4"
         style={{ maxWidth: "min(calc(100vw - 2rem), calc((100svh - 13rem) * 9 / 14))" }}
       >
-        <header className="flex flex-wrap items-center gap-3">
+        <header className="mb-3 flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-bold text-slate-200">Celestial Merge</h1>
-          <div className="ml-auto flex items-center gap-2 text-xs text-slate-300">
-            <span>Next</span>
+          <div className="ml-auto grid justify-items-center rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-center">
+            <span className="block text-xs text-slate-400">Next</span>
             <CelestialBodyPreview level={nextDropLevel} />
           </div>
-          <div className="ml-auto rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-right">
+          <div className="ml-auto grid justify-items-center rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-center">
             <span className="block text-xs text-slate-400">Score</span>
-            <strong>{displayedScore}</strong>
+            <strong className="text-slate-100">{displayedScore}</strong>
           </div>
         </header>
 
