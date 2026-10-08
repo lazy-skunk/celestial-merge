@@ -1,6 +1,6 @@
 import colors from "tailwindcss/colors";
-import { BOARD_HEIGHT, BOARD_WIDTH, DANGER_LINE, SPAWN_Y } from "../board";
-import { CELESTIAL_BODIES, CelestialLevel, celestialBodyRadius } from "../celestialBodies";
+import { BOARD_HEIGHT, BOARD_WIDTH, DANGER_LINE, SPAWN_Y } from "./game/board";
+import { CELESTIAL_BODIES, CelestialLevel, celestialBodyRadius } from "./game/celestialBodies";
 
 type DrawableBody = Readonly<{
   level: CelestialLevel;

@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from "vite-plus/test";
-import { CELESTIAL_BODIES, CelestialLevel, celestialBodyRadius } from "../celestialBodies";
+import { CELESTIAL_BODIES, CelestialLevel, celestialBodyRadius } from "./game/celestialBodies";
 import { drawCelestialBody } from "./draw";
 
 afterEach(() => vi.unstubAllGlobals());

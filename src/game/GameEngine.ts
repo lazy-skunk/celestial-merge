@@ -7,7 +7,7 @@ import {
   randomDropLevel,
   updateDangerLineExposure,
 } from "./gameRules";
-import { updateSimulation } from "./physics/simulation";
+import { updateSimulation } from "./simulation";
 
 const TIME_STEP = 1 / 120;
 const MAX_ELAPSED_SECONDS = 0.05;

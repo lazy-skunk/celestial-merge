@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vite-plus/test";
-import { BOARD_HEIGHT, BOARD_WIDTH } from "../board";
-import { CelestialLevel, celestialBodyRadius } from "../celestialBodies";
-import type { CelestialBody } from "../gameRules";
-import { mergeScore } from "../gameRules";
+import { BOARD_HEIGHT, BOARD_WIDTH } from "./board";
+import { CelestialLevel, celestialBodyRadius } from "./celestialBodies";
+import type { CelestialBody } from "./gameRules";
+import { mergeScore } from "./gameRules";
 import { updateSimulation } from "./simulation";
 
 function createTestBody(overrides: Partial<CelestialBody> = {}): CelestialBody {

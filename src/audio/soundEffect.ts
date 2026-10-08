@@ -1,5 +1,5 @@
 import type { AudioContextStore } from "./audioContext";
-import type { CelestialLevel } from "../celestialBodies";
+import type { CelestialLevel } from "../game/celestialBodies";
 
 const MIN_FREQUENCY_HZ = 440;
 const MAX_FREQUENCY_HZ = 880;

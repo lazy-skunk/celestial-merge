@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test";
-import { CelestialLevel } from "../game/celestialBodies";
+import { CelestialLevel } from "./game/celestialBodies";
 import { createRef } from "react";
 import { CelestialMerge } from "./CelestialMerge";
 import { CelestialMergeView } from "./CelestialMergeView";
@@ -13,11 +13,11 @@ const gameAudio = vi.hoisted(() => ({
   unlock: vi.fn(),
 }));
 
-vi.mock("../game/rendering/draw", () => ({
+vi.mock("./draw", () => ({
   drawBoard: vi.fn(),
   drawCelestialBody: vi.fn(),
 }));
-vi.mock("../game/gameAudio", () => ({ createGameAudio: () => gameAudio }));
+vi.mock("./audio/gameAudio", () => ({ createGameAudio: () => gameAudio }));
 
 let cancelFrame: ReturnType<typeof vi.fn>;
 

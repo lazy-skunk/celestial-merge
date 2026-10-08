@@ -3,8 +3,8 @@ import {
   CELESTIAL_PROGRESSION,
   CelestialLevel,
   celestialBodyRadius,
-} from "../game/celestialBodies";
-import { drawCelestialBody } from "../game/rendering/draw";
+} from "./game/celestialBodies";
+import { drawCelestialBody } from "./draw";
 import { useEffect, useRef, type RefObject } from "react";
 
 const NEXT_BODY_PREVIEW_SIZE = 24;

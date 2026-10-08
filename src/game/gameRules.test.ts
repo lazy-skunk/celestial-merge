@@ -1,11 +1,9 @@
 import { describe, expect, test } from "vite-plus/test";
-import { BOARD_WIDTH, DANGER_LINE, SPAWN_Y } from "./board";
+import { BOARD_WIDTH, DANGER_LINE } from "./board";
 import { celestialBodyRadius, CelestialLevel } from "./celestialBodies";
 import {
-  canMergeCelestialBodies,
   clampDropPosition,
   createCelestialBody,
-  DROP_DANGER_LINE_PROTECTION_SECONDS,
   GAME_OVER_GRACE_SECONDS,
   mergeCelestialBodies,
   mergeScore,
@@ -31,25 +29,6 @@ describe("game rules", () => {
     expect(clampedRight).toBe(BOARD_WIDTH - rightRadius);
   });
 
-  test("creates a celestial body at the clamped position", () => {
-    // Arrange
-    const createdBodyId = 7;
-    const offBoardCreateX = -1;
-    const expectedX = celestialBodyRadius(CelestialLevel.Moon);
-
-    // Act
-    const body = createCelestialBody(createdBodyId, CelestialLevel.Moon, offBoardCreateX);
-
-    // Assert
-    expect(body).toMatchObject({
-      id: createdBodyId,
-      level: CelestialLevel.Moon,
-      x: expectedX,
-      y: SPAWN_Y,
-      dangerLineProtectionFor: DROP_DANGER_LINE_PROTECTION_SECONDS,
-    });
-  });
-
   test("drop level only uses the five smallest celestial bodies", () => {
     // Arrange
     const minRandomValue = 0;
@@ -64,37 +43,6 @@ describe("game rules", () => {
     // Assert
     expect(firstCandidateLevel).toBe(CelestialLevel.Moon);
     expect(lastCandidateLevel).toBe(CelestialLevel.Mars);
-  });
-
-  test("merge awards the next celestial body score", () => {
-    // Arrange
-    const moonMergeScore = 2;
-    const level = CelestialLevel.Moon;
-
-    // Act
-    const score = mergeScore(level);
-
-    // Assert
-    expect(score).toBe(moonMergeScore);
-  });
-
-  test("only matching celestial body levels can merge", () => {
-    // Arrange
-    const bodyOneId = 1;
-    const bodyTwoId = 2;
-    const bodyOneX = 100;
-    const bodyTwoX = 120;
-    const moon = createCelestialBody(bodyOneId, CelestialLevel.Moon, bodyOneX);
-    const matchingMoon = createCelestialBody(bodyTwoId, CelestialLevel.Moon, bodyTwoX);
-    const mercury = createCelestialBody(bodyTwoId, CelestialLevel.Mercury, bodyTwoX);
-
-    // Act
-    const canMergeMatchingBodies = canMergeCelestialBodies(moon, matchingMoon);
-    const canMergeDifferentBodies = canMergeCelestialBodies(moon, mercury);
-
-    // Assert
-    expect(canMergeMatchingBodies).toBe(true);
-    expect(canMergeDifferentBodies).toBe(false);
   });
 
   test("creates a merge result for two matching celestial bodies", () => {

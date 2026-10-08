@@ -1,7 +1,7 @@
-import { BOARD_HEIGHT, BOARD_WIDTH } from "../game/board";
-import { drawBoard } from "../game/rendering/draw";
-import { GameEngine, type GameSnapshot } from "../game/GameEngine";
-import { createGameAudio } from "../game/gameAudio";
+import { BOARD_HEIGHT, BOARD_WIDTH } from "./game/board";
+import { drawBoard } from "./draw";
+import { GameEngine, type GameSnapshot } from "./game/GameEngine";
+import { createGameAudio } from "./audio/gameAudio";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CelestialMergeView } from "./CelestialMergeView";
 
