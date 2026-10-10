@@ -66,7 +66,7 @@ function drawDropGuide(ctx: CanvasRenderingContext2D, board: BoardDrawingState) 
   ctx.save();
   ctx.globalAlpha = board.canDrop ? DROP_GUIDE_OPACITY : DROP_GUIDE_OPACITY / 2;
   ctx.setLineDash([GUIDE_DASH_LENGTH, GUIDE_DASH_LENGTH]);
-  ctx.strokeStyle = colors.slate[200];
+  ctx.strokeStyle = colors.gray[100];
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(board.dropX, SPAWN_Y + radius);
@@ -113,7 +113,7 @@ export function drawCelestialBody(ctx: CanvasRenderingContext2D, body: DrawableB
     // Keep bodies visible while their image is loading or if it fails to load.
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, FULL_CIRCLE);
-    ctx.fillStyle = colors.slate[500];
+    ctx.fillStyle = colors.gray[500];
     ctx.fill();
   }
   ctx.restore();
