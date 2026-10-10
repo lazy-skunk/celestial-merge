@@ -40,11 +40,11 @@ export function CelestialMergeView({
         <header className="mb-2 flex flex-wrap items-center gap-2">
           <h1 className="text-xl font-bold">Celestial Merge</h1>
           <div className="ml-auto grid justify-items-center rounded-lg bg-gray-800/50 px-3 py-2 text-center">
-            <span className="block text-xs">Next</span>
+            <span className="text-xs">Next</span>
             <CelestialBodyPreview level={nextDropLevel} />
           </div>
           <div className="ml-auto grid justify-items-center rounded-lg bg-gray-800/50 px-3 py-2 text-center">
-            <span className="block text-xs">Score</span>
+            <span className="text-xs">Score</span>
             <strong>{displayedScore}</strong>
           </div>
         </header>
@@ -72,11 +72,11 @@ export function CelestialMergeView({
         </div>
 
         <section className="pt-2">
-          <h2 className="mb-1 text-xs text-gray-300">Merge Guide</h2>
+          <h2 className="mb-1 text-xs">Merge Guide</h2>
           <CelestialProgressionRow levels={CELESTIAL_PROGRESSION} />
         </section>
 
-        <footer className="pt-3 text-xs text-gray-300">
+        <footer className="pt-3 text-xs">
           <span>
             {helpTextLines.map((line) => (
               <span key={line} className="block">
@@ -92,11 +92,11 @@ export function CelestialMergeView({
 
 function CelestialProgressionRow({ levels }: { levels: CelestialLevel[] }) {
   return (
-    <div className="flex flex-wrap items-start justify-center gap-1">
+    <div className="flex flex-wrap justify-center gap-1">
       {levels.map((level, index) => (
-        <div key={level} className="flex items-start gap-1">
-          {index > 0 && <span className="text-gray-300">→</span>}
-          <CelestialBodyPreview level={level} size={25} />
+        <div key={level} className="flex gap-1">
+          {index > 0 && <span>→</span>}
+          <CelestialBodyPreview level={level} size={20} />
         </div>
       ))}
     </div>
