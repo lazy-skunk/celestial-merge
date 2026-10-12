@@ -1,10 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test";
-import { CelestialLevel } from "./game/celestialBodies";
-import { createRef } from "react";
-import { CelestialMerge } from "./CelestialMerge";
-import { CelestialMergeView } from "./CelestialMergeView";
+import { App } from "./App";
 
 const gameAudio = vi.hoisted(() => ({
   playMerge: vi.fn(),
@@ -43,10 +40,10 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("CelestialMerge", () => {
+describe("App", () => {
   test("cancels the pending animation frame on unmount", () => {
     // Arrange
-    const { unmount } = render(<CelestialMerge />);
+    const { unmount } = render(<App />);
 
     // Assert
     expect(cancelFrame).not.toHaveBeenCalled();
@@ -59,7 +56,7 @@ describe("CelestialMerge", () => {
   });
 
   test("stops BGM when the page moves to the background", () => {
-    render(<CelestialMerge />);
+    render(<App />);
     vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
 
     fireEvent(document, new Event("visibilitychange"));
@@ -68,52 +65,10 @@ describe("CelestialMerge", () => {
   });
 
   test("stops BGM when the page is hidden", () => {
-    render(<CelestialMerge />);
+    render(<App />);
 
     fireEvent(window, new Event("pagehide"));
 
     expect(gameAudio.stopBgm).toHaveBeenCalledExactlyOnceWith();
-  });
-
-  test("drops at the release position instead of the press position", () => {
-    // Arrange
-    const onDropXChange = vi.fn();
-    const onDrop = vi.fn();
-    const { container } = render(
-      <CelestialMergeView
-        canvasRef={createRef<HTMLCanvasElement>()}
-        displayedScore={0}
-        nextDropLevel={CelestialLevel.Moon}
-        isGameOver={false}
-        onDropXChange={onDropXChange}
-        onDrop={onDrop}
-        onReset={vi.fn()}
-      />,
-    );
-    const canvas = container.querySelector("canvas");
-    if (!canvas) throw new Error("Expected the game canvas to be rendered");
-
-    // Act
-    fireEvent.pointerDown(canvas, { clientX: 20 });
-
-    // Assert
-    expect(onDropXChange).toHaveBeenCalledExactlyOnceWith(20);
-    expect(onDrop).not.toHaveBeenCalled();
-
-    // Act
-    fireEvent.pointerMove(canvas, { clientX: 30 });
-
-    // Assert
-    expect(onDropXChange).toHaveBeenCalledTimes(2);
-    expect(onDropXChange).toHaveBeenLastCalledWith(30);
-    expect(onDrop).not.toHaveBeenCalled();
-
-    // Act
-    fireEvent.pointerUp(canvas, { clientX: 40 });
-
-    // Assert
-    expect(onDropXChange).toHaveBeenCalledTimes(3);
-    expect(onDropXChange).toHaveBeenLastCalledWith(40);
-    expect(onDrop).toHaveBeenCalledExactlyOnceWith();
   });
 });

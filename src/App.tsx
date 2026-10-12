@@ -1,9 +1,139 @@
-import { CelestialMerge } from "./CelestialMerge";
+import { BOARD_HEIGHT, BOARD_WIDTH } from "./game/board";
+import { drawBoard } from "./draw";
+import { GameEngine, type GameSnapshot } from "./game/GameEngine";
+import { createGameAudio } from "./audio/gameAudio";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { CelestialMergeView } from "./CelestialMergeView";
+
+const MILLISECONDS_PER_SECOND = 1000;
+
+type ViewState = Pick<GameSnapshot, "score" | "nextDropLevel" | "isGameOver">;
 
 export function App() {
-  return (
-    <main>
-      <CelestialMerge />
-    </main>
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Keep one engine instance for the component lifetime. This is not render state;
+  // lazy useState avoids the react(refs) warning caused by reading ref.current during render.
+  const [gameAudio] = useState(() => createGameAudio());
+  const [engine] = useState(
+    () => new GameEngine({ onMerge: (level) => gameAudio.playMerge(level) }),
   );
+  const [viewState, setViewState] = useState(() => selectViewState(engine.snapshot()));
+
+  const syncViewState = useCallback((snapshot: GameSnapshot) => {
+    const next = selectViewState(snapshot);
+    setViewState((previous) =>
+      previous.score === next.score &&
+      previous.nextDropLevel === next.nextDropLevel &&
+      previous.isGameOver === next.isGameOver
+        ? previous
+        : next,
+    );
+  }, []);
+
+  const resetGame = useCallback(() => {
+    engine.reset();
+    syncViewState(engine.snapshot());
+  }, [engine, syncViewState]);
+
+  const dropCelestialBody = useCallback(() => {
+    gameAudio.unlock();
+    gameAudio.startBgm();
+    if (engine.drop()) syncViewState(engine.snapshot());
+  }, [engine, gameAudio, syncViewState]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resizeCanvas = createCanvasResizer(canvas, ctx);
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    const stopGameLoop = startGameLoop(ctx, engine, syncViewState);
+    const stopBgm = () => gameAudio.stopBgm();
+    const stopBgmWhenHidden = () => {
+      if (document.visibilityState === "hidden") stopBgm();
+    };
+
+    document.addEventListener("visibilitychange", stopBgmWhenHidden);
+    window.addEventListener("pagehide", stopBgm);
+
+    return () => {
+      stopGameLoop();
+      gameAudio.stopBgm();
+      document.removeEventListener("visibilitychange", stopBgmWhenHidden);
+      window.removeEventListener("pagehide", stopBgm);
+      window.removeEventListener("resize", resizeCanvas);
+    };
+  }, [engine, gameAudio, syncViewState]);
+
+  const updateDropX = (clientX: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const dropX = ((clientX - rect.left) / rect.width) * BOARD_WIDTH;
+    engine.setDropX(dropX);
+  };
+
+  return (
+    <CelestialMergeView
+      canvasRef={canvasRef}
+      displayedScore={viewState.score}
+      nextDropLevel={viewState.nextDropLevel}
+      isGameOver={viewState.isGameOver}
+      onDropXChange={updateDropX}
+      onDrop={dropCelestialBody}
+      onReset={resetGame}
+    />
+  );
+}
+
+function selectViewState(snapshot: GameSnapshot): ViewState {
+  return {
+    score: snapshot.score,
+    nextDropLevel: snapshot.nextDropLevel,
+    isGameOver: snapshot.isGameOver,
+  };
+}
+
+function createCanvasResizer(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+  return () => {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = BOARD_WIDTH * dpr;
+    canvas.height = BOARD_HEIGHT * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+}
+
+function startGameLoop(
+  ctx: CanvasRenderingContext2D,
+  engine: GameEngine,
+  syncViewState: (snapshot: GameSnapshot) => void,
+) {
+  let animationFrameId = 0;
+  let previousTime = performance.now();
+
+  const runAnimationFrame = (currentTime: number) => {
+    engine.advance((currentTime - previousTime) / MILLISECONDS_PER_SECOND);
+    previousTime = currentTime;
+
+    const snapshot = engine.snapshot();
+    drawBoard(ctx, {
+      bodies: snapshot.bodies,
+      dropX: snapshot.dropX,
+      dropLevel: snapshot.dropLevel,
+      gameOver: snapshot.isGameOver,
+      canDrop: snapshot.canDrop,
+    });
+    syncViewState(snapshot);
+    animationFrameId = requestAnimationFrame(runAnimationFrame);
+  };
+
+  animationFrameId = requestAnimationFrame(runAnimationFrame);
+  return () => cancelAnimationFrame(animationFrameId);
 }
