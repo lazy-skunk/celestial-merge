@@ -1,5 +1,6 @@
-import { CELESTIAL_BODIES, CELESTIAL_PROGRESSION, CelestialLevel } from "./game/celestialBodies";
 import type { RefObject } from "react";
+
+import { CELESTIAL_BODIES, CELESTIAL_PROGRESSION, CelestialLevel } from "./game/celestialBodies";
 
 const NEXT_BODY_PREVIEW_SIZE = 24;
 

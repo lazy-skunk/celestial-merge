@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
+
 import { BOARD_WIDTH } from "./board";
 import { celestialBodyRadius, CelestialLevel } from "./celestialBodies";
 import { GameEngine } from "./GameEngine";

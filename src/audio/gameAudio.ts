@@ -1,7 +1,7 @@
+import { CELESTIAL_PROGRESSION, type CelestialLevel } from "../game/celestialBodies";
 import { createAudioContextStore } from "./audioContext";
 import { createBgmPlayer } from "./bgm";
 import { createSoundEffectPlayer } from "./soundEffect";
-import { CELESTIAL_PROGRESSION, type CelestialLevel } from "../game/celestialBodies";
 
 export function createGameAudio() {
   const audioContextStore = createAudioContextStore();

@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vite-plus/test";
+
 import { BOARD_WIDTH, DANGER_LINE } from "./board";
 import { celestialBodyRadius, CelestialLevel } from "./celestialBodies";
 import {

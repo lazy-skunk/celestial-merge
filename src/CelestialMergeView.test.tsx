@@ -2,6 +2,7 @@
 import { fireEvent, render } from "@testing-library/react";
 import { createRef } from "react";
 import { expect, test, vi } from "vite-plus/test";
+
 import { CelestialMergeView } from "./CelestialMergeView";
 import { CelestialLevel } from "./game/celestialBodies";
 
