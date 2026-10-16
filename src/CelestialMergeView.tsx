@@ -35,22 +35,22 @@ export function CelestialMergeView({
       style={{ backgroundImage: `url(${import.meta.env.BASE_URL}bg_moon_getsumen.webp)` }}
     >
       <section
-        className="w-full rounded-lg bg-gray-900 p-4"
+        className="bg-background w-full rounded-lg p-4"
         style={{ maxWidth: "min(calc(100vw - 2rem), calc((100svh - 13rem) * 9 / 14))" }}
       >
         <header className="mb-2 flex flex-wrap items-center gap-2">
           <h1 className="text-xl font-bold">Celestial Merge</h1>
-          <div className="ml-auto grid justify-items-center rounded-lg bg-gray-800/50 px-3 py-2 text-center">
+          <div className="bg-foreground/3 ml-auto grid justify-items-center rounded-lg px-3 py-2 text-center">
             <span className="text-xs">Next</span>
             <CelestialBodyPreview level={nextDropLevel} />
           </div>
-          <div className="ml-auto grid justify-items-center rounded-lg bg-gray-800/50 px-3 py-2 text-center">
+          <div className="bg-foreground/3 ml-auto grid justify-items-center rounded-lg px-3 py-2 text-center">
             <span className="text-xs">Score</span>
             <strong>{displayedScore}</strong>
           </div>
         </header>
 
-        <div className="relative overflow-hidden rounded-lg bg-gray-950">
+        <div className="bg-foreground/3 relative overflow-hidden rounded-lg">
           <canvas
             ref={canvasRef}
             className="block w-full touch-none"
@@ -62,10 +62,10 @@ export function CelestialMergeView({
             }}
           />
           {isGameOver && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray-950/50">
+            <div className="bg-background/75 absolute inset-0 flex flex-col items-center justify-center gap-3">
               <p>Game Over</p>
               <strong className="text-xl">{displayedScore} pts</strong>
-              <button className="rounded bg-gray-100 px-3 py-2 text-gray-900" onClick={onReset}>
+              <button className="bg-foreground text-background rounded px-3 py-2" onClick={onReset}>
                 Play Again
               </button>
             </div>

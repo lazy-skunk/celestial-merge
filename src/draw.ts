@@ -14,8 +14,8 @@ type DrawableBody = Readonly<{
 const FULL_CIRCLE = Math.PI * 2;
 const GUIDE_DASH_LENGTH = 5;
 const DANGER_LINE_BLINK_INTERVAL_MS = 400;
-const DANGER_LINE_DIM_OPACITY = 0.35;
-const DROP_GUIDE_OPACITY = 0.3;
+const DANGER_LINE_DIM_OPACITY = 0.5;
+const DROP_GUIDE_OPACITY = 0.5;
 const PREVIEW_OPACITY = 0.75;
 const COOLDOWN_PREVIEW_OPACITY = 0.25;
 
@@ -67,7 +67,7 @@ function drawDropGuide(ctx: CanvasRenderingContext2D, board: BoardDrawingState) 
   ctx.save();
   ctx.globalAlpha = board.canDrop ? DROP_GUIDE_OPACITY : DROP_GUIDE_OPACITY / 2;
   ctx.setLineDash([GUIDE_DASH_LENGTH, GUIDE_DASH_LENGTH]);
-  ctx.strokeStyle = colors.gray[100];
+  ctx.strokeStyle = getComputedStyle(ctx.canvas).color;
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(board.dropX, SPAWN_Y + radius);
@@ -114,7 +114,7 @@ export function drawCelestialBody(ctx: CanvasRenderingContext2D, body: DrawableB
     // Keep bodies visible while their image is loading or if it fails to load.
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, FULL_CIRCLE);
-    ctx.fillStyle = colors.gray[500];
+    ctx.fillStyle = getComputedStyle(ctx.canvas).color;
     ctx.fill();
   }
   ctx.restore();
