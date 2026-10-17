@@ -31,61 +31,58 @@ export function CelestialMergeView({
 
   return (
     <main
-      className="grid h-svh place-items-center overflow-auto bg-cover bg-center p-4"
-      style={{ backgroundImage: `url(${import.meta.env.BASE_URL}bg_moon_getsumen.webp)` }}
+      className="bg-background text-foreground grid min-h-screen content-center justify-center overflow-auto bg-cover bg-center p-4"
+      style={{
+        backgroundImage: `url(${import.meta.env.BASE_URL}bg_moon_getsumen.webp)`,
+        gridTemplateColumns: "minmax(0, min(calc(100vw - 2rem), calc((100svh - 13rem) * 9 / 14)))",
+      }}
     >
-      <section
-        className="bg-background w-full rounded-lg p-4"
-        style={{ maxWidth: "min(calc(100vw - 2rem), calc((100svh - 13rem) * 9 / 14))" }}
-      >
-        <header className="mb-2 flex flex-wrap items-center gap-2">
-          <h1 className="text-xl font-bold">Celestial Merge</h1>
-          <div className="bg-foreground/3 ml-auto grid justify-items-center rounded-lg px-3 py-2 text-center">
-            <span className="text-xs">Next</span>
-            <CelestialBodyPreview level={nextDropLevel} />
-          </div>
-          <div className="bg-foreground/3 ml-auto grid justify-items-center rounded-lg px-3 py-2 text-center">
-            <span className="text-xs">Score</span>
-            <strong>{displayedScore}</strong>
-          </div>
-        </header>
-
-        <div className="bg-foreground/3 relative overflow-hidden rounded-lg">
-          <canvas
-            ref={canvasRef}
-            className="block w-full touch-none"
-            onPointerDown={(event) => onDropXChange(event.clientX)}
-            onPointerMove={(event) => onDropXChange(event.clientX)}
-            onPointerUp={(event) => {
-              onDropXChange(event.clientX);
-              onDrop();
-            }}
-          />
-          {isGameOver && (
-            <div className="bg-background/75 absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <p>Game Over</p>
-              <strong className="text-xl">{displayedScore} pts</strong>
-              <button className="bg-foreground text-background rounded px-3 py-2" onClick={onReset}>
-                Play Again
-              </button>
-            </div>
-          )}
+      <header className="mb-2 flex flex-wrap items-center gap-2 text-gray-100">
+        <h1 className="text-xl font-bold">
+          <a href="#">Celestial Merge</a>
+        </h1>
+        <div className="bg-foreground/3 ml-auto grid justify-items-center rounded px-3 py-2 text-center">
+          <span className="text-xs">Next</span>
+          <CelestialBodyPreview level={nextDropLevel} />
         </div>
+        <div className="bg-foreground/3 ml-auto grid justify-items-center rounded px-3 py-2 text-center">
+          <span className="text-xs">Score</span>
+          <strong>{displayedScore}</strong>
+        </div>
+      </header>
 
-        <section className="pt-2">
-          <h2 className="mb-1 text-xs">Merge Guide</h2>
-          <CelestialProgressionRow levels={CELESTIAL_PROGRESSION} />
-        </section>
+      <div className="bg-foreground/3 relative overflow-hidden rounded border border-gray-500/50">
+        <canvas
+          ref={canvasRef}
+          className="block w-full touch-none"
+          onPointerDown={(event) => onDropXChange(event.clientX)}
+          onPointerMove={(event) => onDropXChange(event.clientX)}
+          onPointerUp={(event) => {
+            onDropXChange(event.clientX);
+            onDrop();
+          }}
+        />
+        {isGameOver && (
+          <div className="bg-background/50 absolute inset-0 flex flex-col items-center justify-center gap-3 rounded">
+            <p>Game Over</p>
+            <strong className="text-xl">{displayedScore} pts</strong>
+            <button
+              type="button"
+              className="bg-foreground text-background cursor-pointer rounded px-4 py-2 text-sm font-medium motion-safe:transition motion-safe:active:translate-y-px"
+              onClick={onReset}
+            >
+              Play Again
+            </button>
+          </div>
+        )}
+      </div>
 
-        <footer className="pt-3 text-xs">
-          <span>
-            {helpTextLines.map((line) => (
-              <span key={line} className="block">
-                {line}
-              </span>
-            ))}
-          </span>
-        </footer>
+      <section className="bg-background/50 mt-2 rounded p-2 text-xs">
+        <h2 className="mb-1">How to Play</h2>
+        {helpTextLines.map((line) => (
+          <p key={line}>{line}</p>
+        ))}
+        <CelestialProgressionRow levels={CELESTIAL_PROGRESSION} />
       </section>
     </main>
   );
