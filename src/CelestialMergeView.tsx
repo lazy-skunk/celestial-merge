@@ -30,7 +30,7 @@ export function CelestialMergeView({
   ];
 
   return (
-    <main
+    <div
       className="bg-background text-foreground grid min-h-screen content-center justify-center overflow-auto bg-cover bg-center p-4"
       style={{
         backgroundImage: `url(${import.meta.env.BASE_URL}bg_moon_getsumen.webp)`,
@@ -51,40 +51,42 @@ export function CelestialMergeView({
         </div>
       </header>
 
-      <div className="bg-foreground/3 relative overflow-hidden rounded border border-gray-500/50">
-        <canvas
-          ref={canvasRef}
-          className="block w-full touch-none"
-          onPointerDown={(event) => onDropXChange(event.clientX)}
-          onPointerMove={(event) => onDropXChange(event.clientX)}
-          onPointerUp={(event) => {
-            onDropXChange(event.clientX);
-            onDrop();
-          }}
-        />
-        {isGameOver && (
-          <div className="bg-background/50 absolute inset-0 flex flex-col items-center justify-center gap-3 rounded">
-            <p>Game Over</p>
-            <strong className="text-xl">{displayedScore} pts</strong>
-            <button
-              type="button"
-              className="bg-foreground text-background cursor-pointer rounded px-4 py-2 text-sm font-medium motion-safe:transition motion-safe:active:translate-y-px"
-              onClick={onReset}
-            >
-              Play Again
-            </button>
-          </div>
-        )}
-      </div>
+      <main>
+        <div className="bg-foreground/3 relative overflow-hidden rounded border border-gray-500/50">
+          <canvas
+            ref={canvasRef}
+            className="block w-full touch-none"
+            onPointerDown={(event) => onDropXChange(event.clientX)}
+            onPointerMove={(event) => onDropXChange(event.clientX)}
+            onPointerUp={(event) => {
+              onDropXChange(event.clientX);
+              onDrop();
+            }}
+          />
+          {isGameOver && (
+            <div className="bg-background/50 absolute inset-0 flex flex-col items-center justify-center gap-3 rounded">
+              <p>Game Over</p>
+              <strong className="text-xl">{displayedScore} pts</strong>
+              <button
+                type="button"
+                className="bg-foreground text-background cursor-pointer rounded px-4 py-2 text-sm font-medium motion-safe:transition motion-safe:active:translate-y-px"
+                onClick={onReset}
+              >
+                Play Again
+              </button>
+            </div>
+          )}
+        </div>
 
-      <section className="bg-background/50 mt-2 rounded p-2 text-xs">
-        <h2 className="mb-1">How to Play</h2>
-        {helpTextLines.map((line) => (
-          <p key={line}>{line}</p>
-        ))}
-        <CelestialProgressionRow levels={CELESTIAL_PROGRESSION} />
-      </section>
-    </main>
+        <section className="bg-background/50 mt-2 rounded p-2 text-xs">
+          <h2 className="mb-1">How to Play</h2>
+          {helpTextLines.map((line) => (
+            <p key={line}>{line}</p>
+          ))}
+          <CelestialProgressionRow levels={CELESTIAL_PROGRESSION} />
+        </section>
+      </main>
+    </div>
   );
 }
 
